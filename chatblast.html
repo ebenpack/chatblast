@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Websocks</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+    <style>
+        html, *, *:before, *:after {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        img {
+            max-width: 100%;
+        }
+        .focus {
+            background-color: aliceblue;
+        }
+        .connect, .chat {
+            padding: 30px;
+            transition: background-color 2s, opacity 2s;
+        }
+        .blur {
+            opacity: 0.4;
+        }
+        .textInput {
+            white-space: pre;
+            background-color: white;
+            border: 1px solid #C3C3C3;
+            min-height: 100px;
+        }
+        .messages {
+            word-wrap: break-word;
+        }
+        .messages > div:nth-child(odd){
+            background-color: white;
+        }
+        .messages div.command {
+            background-color: #FDE8E8;
+        }
+        .payload {
+            white-space: pre;
+        }
+        textarea {
+            width: 100%;
+        }
+        input {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <script>
+    var state = {
+        "readyState": 0,
+        "chatlog": [],
+        "addChat": function(chat){
+            try {
+                var chatblast = JSON.parse(chat);
+                this.chatlog.push(chatblast);
+                if (this.chatlog.length > 20) {
+                    this.chatlog.shift();
+                }
+            } catch(e){
+
+            }
+            
+        }
+    };
+    // CONNECTING    0   The connection is not yet open.
+    // OPEN    1   The connection is open and ready to communicate.
+    // CLOSING 2   The connection is in the process of closing.
+    // CLOSED  3   The connection is closed or couldn't be opened.
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <div id="example" class="container"></div>
+    <script type="text/jsx" src="js/chatblast.jsx"></script>
+    <script type="text/jsx">
+    function renderREACT(){
+        React.render(
+          <App data={state} />,
+          document.getElementById('example')
+        );
+    }
+    renderREACT();
+    </script>
+
+    <script>
+        var chatBlast;
+        function connect(name){
+            var nameQS = name ? ('?name=' + name) : '';
+            try {
+                var sock = new WebSocket("ws://{{.}}/sock" + nameQS);
+                console.log("Websocket - status: " + sock.readyState);
+                chatBlast = function(msg){
+                    sock.send(msg);
+                }
+                sock.onopen = function(m) {
+                    state.readyState = sock.readyState;
+                    console.log("CONNECTION opened..." + this.readyState);
+                };
+                sock.onmessage = function(m) {
+                    state.addChat(m.data);
+                    renderREACT();
+                };
+                sock.onerror = function(m) {
+                    state.readyState = sock.readyState;
+                    console.log("Error occured sending..." + m.data);
+                };
+                sock.onclose = function(m) { 
+                    state.readyState = sock.readyState;
+                    console.log("Disconnected - status " + this.readyState);
+                    //setTimeout(function(){connect(name)}, 1000);
+                };
+            } catch(exception) {
+                console.log(exception);
+                //setTimeout(function(){connect(name)}, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
