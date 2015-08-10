@@ -1,0 +1,8 @@
+# TODO
+
+* Improve UI
+* Implement cross-origin request prevention
+* Cleanup/refactor
+* Add simple markup support (bold, italic, underline, etc.)
+* Add emoticon/emoji support
+* Deploy... somewhere (heroku? GAE?)
