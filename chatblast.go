@@ -29,6 +29,7 @@ type msgIncoming struct {
 
 type usr struct {
 	Name       string          `json:"name"`
+	Connected  int64           `json:"connected"`
 	connection *websocket.Conn `json:"-"`
 }
 
@@ -67,8 +68,9 @@ func chatblaster() {
 }
 
 func sockhandler(w http.ResponseWriter, r *http.Request) {
-	origin := r.Header.Get("origin")
+
 	// Check to see if request is from same origin
+	origin := r.Header.Get("origin")
 	if strings.Contains(r.Host, origin) {
 		emptyResponse := []byte{}
 		w.WriteHeader(403)
@@ -94,7 +96,8 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Make user
-	self := usr{Name: name, connection: conn}
+	now = time.Now().Unix()
+	self := usr{Name: name, connection: conn, Connected: now}
 	h.users[self] = true
 
 	// Register some teardown
@@ -144,6 +147,24 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func userHandler(w http.ResponseWriter, r *http.Request) {
+	userArray := make([]usr, 0)
+	for user := range h.users {
+		userArray = append(userArray, user)
+	}
+	userJSON := map[string][]usr{
+		"users": userArray,
+	}
+	resp, err := json.Marshal(userJSON)
+	if err != nil {
+		log.Println("Error retrieving users")
+	} else {
+		head := w.Header()
+		head.Add("content-type", "application/json")
+		w.Write(resp)
+	}
+}
+
 func jsHandler(w http.ResponseWriter, r *http.Request) {
 	// Serve some static JS files
 	log.Println("jshandler")
@@ -158,6 +179,7 @@ func init() {
 		log.Fatal(err)
 	}
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/users", userHandler)
 	http.Handle("/js/", http.FileServer(http.Dir(dir)))
 	http.HandleFunc("/sock", sockhandler)
 }
