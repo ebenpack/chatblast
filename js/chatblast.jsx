@@ -2,16 +2,19 @@
  * @jsx React.DOM
  */
 
+function convertFromEpoch(timestamp){
+    var d = new Date(0),
+        dateString;
+    d.setUTCSeconds(timestamp).toString();
+    return d.toString();
+}
+
 var Chat = React.createClass({
     render: function() {
         var chat = this.props.chat,
-            time = chat.time,
+            dateString = convertFromEpoch(chat.time),
             output = false;
 
-        var d = new Date(0),
-            dateString;
-        d.setUTCSeconds(time).toString();
-        dateString = d.toString();
         switch (chat.cmd) {
             case "incoming":
                 var serializedChat = chat.msg.map(function(curr){
@@ -80,12 +83,6 @@ var Chatlog = React.createClass({
                     var img = new Image();
                     img.src = e.target.result;
                     msg.appendChild(img);
-                    //count++;
-                    // if (count === length) {
-                    //     msg.val = JSON.stringify({"type": "img", "imgs": base64Array});
-                    //     chatlog.submit();
-                    //     msg.textContent = "";
-                    // }
                 };
                 reader.readAsDataURL(curr);
             });
@@ -165,6 +162,18 @@ var Chatlog = React.createClass({
   }
 });
 
+var Users = React.createClass({
+    render: function(){
+        return (
+            <div className={this.props.className + ' six columns'} >
+                {this.props.users.map(function(user){
+                    return (<div>User {user.name}, connected at {convertFromEpoch(user.connected)}</div>)
+                })}
+            </div>
+        )
+    }
+});
+
 var Connect = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
@@ -176,7 +185,7 @@ var Connect = React.createClass({
   },
   render: function() {
     return (
-        <div className={this.props.className + ' six columns'}>
+        <div className={this.props.className + ' twelve columns'}>
             <form onSubmit={this.handleSubmit}>
                 <input placeholder="Your name" ref="name" />
                 <input type="submit" value="Connect" />
@@ -189,18 +198,22 @@ var Connect = React.createClass({
 var App = React.createClass({
   render: function() {
     var connectClass = 'connect',
-        chatClass = 'chat';
+        chatClass = 'chat',
+        userClass = 'user';
     if (this.props.data.readyState === 0) {
         connectClass += " focus";
         chatClass += " blur";
+        userClass += " blur";
     } else if (this.props.data.readyState === 1) {
         chatClass += " focus";
+        userClass += " focus";
         connectClass += " blur";
     }
     return (
       <div className="app">
         <Chatlog className={chatClass} chatlog={this.props.data.chatlog} readyState={this.props.data.readyState} />
         <Connect className={connectClass} readyState={this.props.data.readyState} />
+        <Users className={userClass} readyState={this.props.data.readyState} users={this.props.data.users}  />
       </div>
     );
   }

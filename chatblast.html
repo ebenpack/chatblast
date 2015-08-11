@@ -16,12 +16,16 @@
         .focus {
             background-color: aliceblue;
         }
+        .connect {
+            position: absolute;
+        }
         .connect, .chat {
             padding: 30px;
-            transition: background-color 2s, opacity 2s;
+            transition: visibility 2s, background-color 2s, opacity 2s;
         }
         .blur {
-            opacity: 0.4;
+            opacity: 0;
+            visibility:hidden;
         }
         .textInput {
             white-space: pre;
@@ -54,6 +58,40 @@
     var state = {
         "readyState": 0,
         "chatlog": [],
+        "users": [],
+        "getUsers": function(){
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function(){
+                if (request.readyState === 4) {
+                    if (request.status === 200) {
+                        try {
+                            state.users = JSON.parse(request.responseText).users;
+                            renderREACT();
+                        } catch(e) {
+
+                        }
+                    }
+                }
+            };
+            request.open('GET', '//{{.}}/users', true);
+            request.send(null);
+        },
+        "addUser": function(user){
+            this.users.push(user);
+        },
+        "removeUser": function(user){
+            var idx = -1;
+            for (var i = 0, len = this.users.length; i < len; i++) {
+                var currentUser = this.users[i];
+                if (currentUser.name === user.name){
+                    idx = i;
+                    break;
+                }
+            }
+            if (id >= 0){
+                this.users.splice(idx, 1);
+            }
+        },
         "addChat": function(chat){
             try {
                 var chatblast = JSON.parse(chat);
@@ -98,6 +136,7 @@
                 };
                 sock.onopen = function(m) {
                     state.readyState = sock.readyState;
+                    state.getUsers();
                     console.log("CONNECTION opened..." + this.readyState);
                 };
                 sock.onmessage = function(m) {
