@@ -66,9 +66,6 @@ var Chat = React.createClass({
 });
 
 var Chatlog = React.createClass({
-    imgToBase64: function(img){
-        var img = new Image();
-    },
     handleDrop: function(e){
         var chatlog = this;
         var msg = React.findDOMNode(chatlog.refs.msg);

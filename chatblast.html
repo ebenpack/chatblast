@@ -95,7 +95,7 @@
                 console.log("Websocket - status: " + sock.readyState);
                 chatBlast = function(msg){
                     sock.send(msg);
-                }
+                };
                 sock.onopen = function(m) {
                     state.readyState = sock.readyState;
                     console.log("CONNECTION opened..." + this.readyState);
