@@ -6,7 +6,7 @@ function convertFromEpoch(timestamp){
     var d = new Date(0),
         dateString;
     d.setUTCSeconds(timestamp).toString();
-    return d.toString();
+    return d.toLocaleTimeString();
 }
 
 var Chat = React.createClass({
@@ -15,56 +15,27 @@ var Chat = React.createClass({
             dateString = convertFromEpoch(chat.time),
             output = false;
 
-        switch (chat.cmd) {
-            case "incoming":
-                var serializedChat = chat.msg.map(function(curr){
-                    var output = false;
-                    if (curr.text){
-                        output = (<span>{curr.text}</span>);
-                    } else if (curr.img64){
-                        output = (<img src={curr.img64} />);
-                    } else if (curr.img){
-                        output = (<img src={curr.img} />);
-                    }
-                    return output;
-                });
-                output = (
-                    <div className="msg">
-                        <div className="payload">
-                            {chat.user.name + " sez: "}{serializedChat}
-                        </div>
-                        <div className="time">
-                            {dateString}
-                        </div>
-                    </div>
-                );
-                break;
-            case "logoff":
-                output = (
-                    <div className="command">
-                        <div className="payload">
-                            {"Goodbye, " + chat.user.name + "!"}
-                        </div>
-                        <div className="time">
-                            {dateString}
-                        </div>
-                    </div>
-                );
-                break;
-            case "login":
-                output = (
-                    <div className="command">
-                        <div className="payload">
-                            {"Hello, " + chat.user.name + "!"}
-                        </div>
-                        <div className="time">
-                            {dateString}
-                        </div>
-                    </div>
-                );
-                break;
-        }
-        return output;
+        var serializedChat = chat.msg.map(function(curr){
+            var output = false;
+            if (curr.text){
+                output = (<span>{curr.text}</span>);
+            } else if (curr.img64){
+                output = (<img src={curr.img64} />);
+            } else if (curr.img){
+                output = (<img src={curr.img} />);
+            }
+            return output;
+        });
+        return (
+            <div className="msg">
+                <div className="payload">
+                    {chat.user.name + " sez: "}{serializedChat}
+                </div>
+                <div className="time">
+                    {dateString}
+                </div>
+            </div>
+        );
     }
 });
 
