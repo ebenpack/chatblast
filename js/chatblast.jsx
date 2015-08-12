@@ -101,6 +101,8 @@ var Chatlog = React.createClass({
         } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
             prev.push({img: curr.src});
             return prev;
+        } else {
+            return prev;
         }
     }
     var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
