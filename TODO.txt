@@ -2,6 +2,11 @@
 
 * Improve UI
 * Cleanup/refactor
+* Assign/identify users by id (uuid? login timestamp?)
+* Save user prefs (esp. name)
+* Allow for user pics
+* Rate limit?
+* Enforce message size limt
 * Add whisper command (private message to user of choice)
 * Add simple markup support (bold, italic, underline, etc.)
 * Add emoticon/emoji support
