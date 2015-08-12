@@ -59,6 +59,25 @@
         "readyState": 0,
         "chatlog": [],
         "users": [],
+        "self": {},
+        "processMsg": function(msg) {
+            try {
+                var chatblast = JSON.parse(msg);
+                switch (chatblast.cmd) {
+                    case "login":
+                        this.addUser(chatblast.user);
+                        break;
+                    case "logoff":
+                        this.removeUser(chatblast.user);
+                        break;
+                    case "msg":
+                        this.addChat(chatblast);
+                        break;
+                }
+            } catch (e) {
+
+            }
+        },
         "getUsers": function(){
             var request = new XMLHttpRequest();
             request.onreadystatechange = function(){
@@ -88,21 +107,15 @@
                     break;
                 }
             }
-            if (id >= 0){
+            if (idx >= 0){
                 this.users.splice(idx, 1);
             }
         },
         "addChat": function(chat){
-            try {
-                var chatblast = JSON.parse(chat);
-                this.chatlog.push(chatblast);
-                if (this.chatlog.length > 20) {
-                    this.chatlog.shift();
-                }
-            } catch(e){
-
+            this.chatlog.push(chat);
+            if (this.chatlog.length > 20) {
+                this.chatlog.shift();
             }
-            
         }
     };
     // CONNECTING    0   The connection is not yet open.
@@ -140,7 +153,7 @@
                     console.log("CONNECTION opened..." + this.readyState);
                 };
                 sock.onmessage = function(m) {
-                    state.addChat(m.data);
+                    state.processMsg(m.data);
                     renderREACT();
                 };
                 sock.onerror = function(m) {
