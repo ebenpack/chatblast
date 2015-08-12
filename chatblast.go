@@ -132,7 +132,7 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			log.Println("Bad JSON")
 		}
-		h.broadcast <- chatblast{Cmd: "incoming", Msg: msg.Data, Usr: self, Time: now}
+		h.broadcast <- chatblast{Cmd: "msg", Msg: msg.Data, Usr: self, Time: now}
 
 	}
 
@@ -191,5 +191,7 @@ func main() {
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())
+	} else {
+		log.Println("Serving on")
 	}
 }
