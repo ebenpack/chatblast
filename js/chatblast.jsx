@@ -105,6 +105,7 @@ var Chatlog = React.createClass({
             return prev;
         }
     }
+    chatBox.normalize();
     var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
     if (msg.length !== 0){
         chatBlast(JSON.stringify({"type":"msg", "data":msg}));
