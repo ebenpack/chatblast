@@ -1,43 +1,5 @@
-/**
- * @jsx React.DOM
- */
-
-function convertFromEpoch(timestamp){
-    var d = new Date(0),
-        dateString;
-    d.setUTCSeconds(timestamp).toString();
-    return d.toLocaleTimeString();
-}
-
-var Chat = React.createClass({
-    render: function() {
-        var chat = this.props.chat,
-            dateString = convertFromEpoch(chat.time),
-            output = false;
-
-        var serializedChat = chat.msg.map(function(curr){
-            var output = false;
-            if (curr.text){
-                output = (<span>{curr.text}</span>);
-            } else if (curr.img64){
-                output = (<img src={curr.img64} />);
-            } else if (curr.img){
-                output = (<img src={curr.img} />);
-            }
-            return output;
-        });
-        return (
-            <div className="msg">
-                <div className="payload">
-                    {chat.user.name + " sez: "}{serializedChat}
-                </div>
-                <div className="time">
-                    {dateString}
-                </div>
-            </div>
-        );
-    }
-});
+var React = require('react');
+var Chat = require('./Chat.jsx');
 
 var Chatlog = React.createClass({
     handleDrop: function(e){
@@ -128,7 +90,7 @@ var Chatlog = React.createClass({
             </div>
             <div className="messages">
                 {this.props.chatlog.map(function(chat){
-                    return (<Chat chat={chat} />)
+                    return (<Chat chat={chat} />);
                 })}
             </div>
         </div>
@@ -136,59 +98,4 @@ var Chatlog = React.createClass({
   }
 });
 
-var Users = React.createClass({
-    render: function(){
-        return (
-            <div className={this.props.className + ' six columns'} >
-                {this.props.users.map(function(user){
-                    return (<div>User {user.name}, connected at {convertFromEpoch(user.connected)}</div>)
-                })}
-            </div>
-        )
-    }
-});
-
-var Connect = React.createClass({
-  handleSubmit: function(e) {
-    e.preventDefault();
-    if (this.props.readyState === 0){
-        var name = React.findDOMNode(this.refs.name);
-        connect(name.value.trim());
-        name.value = '';
-    }
-  },
-  render: function() {
-    return (
-        <div className={this.props.className + ' twelve columns'}>
-            <form onSubmit={this.handleSubmit}>
-                <input placeholder="Your name" ref="name" />
-                <input type="submit" value="Connect" />
-            </form>
-        </div>
-    );
-  }
-});
-
-var App = React.createClass({
-  render: function() {
-    var connectClass = 'connect',
-        chatClass = 'chat',
-        userClass = 'user';
-    if (this.props.data.readyState === 0) {
-        connectClass += " focus";
-        chatClass += " blur";
-        userClass += " blur";
-    } else if (this.props.data.readyState === 1) {
-        chatClass += " focus";
-        userClass += " focus";
-        connectClass += " blur";
-    }
-    return (
-      <div className="app">
-        <Chatlog className={chatClass} chatlog={this.props.data.chatlog} readyState={this.props.data.readyState} />
-        <Connect className={connectClass} readyState={this.props.data.readyState} />
-        <Users className={userClass} readyState={this.props.data.readyState} users={this.props.data.users}  />
-      </div>
-    );
-  }
-});
+module.exports = Chatlog;
