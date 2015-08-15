@@ -1,9 +1,10 @@
 var React = require('react');
+var Store = require('./Store');
 var Chatblast = require('./Chatblast.jsx');
 
-function init(state){
+function init(domain){
     React.render(
-      <Chatblast data={state} />,
+      <Chatblast domain={domain} />,
       document.getElementById('app')
     );
 }

@@ -1,5 +1,6 @@
 var React = require('react');
 var Chat = require('./Chat.jsx');
+var Actions = require('./Actions');
 
 var Chatlog = React.createClass({
     handleDrop: function(e){
@@ -70,7 +71,7 @@ var Chatlog = React.createClass({
     chatBox.normalize();
     var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
     if (msg.length !== 0){
-        chatBlast(JSON.stringify({"type":"msg", "data":msg}));
+        Actions.chatBlast(JSON.stringify({"type":"msg", "data":msg}));
         chatBox.textContent = '';
     }
   },
@@ -90,7 +91,7 @@ var Chatlog = React.createClass({
             </div>
             <div className="messages">
                 {this.props.chatlog.map(function(chat){
-                    return (<Chat chat={chat} />);
+                    return (<Chat key={chat.time} chat={chat} />);
                 })}
             </div>
         </div>

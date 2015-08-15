@@ -6,7 +6,7 @@ var Users = React.createClass({
         return (
             <div className={this.props.className + ' six columns'} >
                 {this.props.users.map(function(user){
-                    return (<div>User {user.name}, connected at {util.convertFromEpoch(user.connected)}</div>);
+                    return (<div key={user.connected}>User {user.name}, connected at {util.convertFromEpoch(user.connected)}</div>);
                 })}
             </div>
         );
