@@ -16,4 +16,6 @@ gulp.task('watch', function(){
     gulp.watch('./src/**/*.{js,jsx}', ['reactor']);
 });
 
+gulp.task('build', ['reactor']);
+
 gulp.task('default', ['watch']);
