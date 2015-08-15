@@ -1,4 +1,4 @@
-package main
+package chatblast
 
 import (
 	"encoding/json"
@@ -140,7 +140,7 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	// Serve up an HTML template to bootstrap everything
-	t, _ := template.ParseFiles("chatblast.html")
+	t, _ := template.ParseFiles("html/chatblast.html")
 	err := t.Execute(w, r.Host)
 	if err != nil {
 		log.Println("uh oh!")
@@ -178,13 +178,14 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println(dir)
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/users", userHandler)
 	http.Handle("/js/", http.FileServer(http.Dir(dir)))
 	http.HandleFunc("/sock", sockhandler)
 }
 
-func main() {
+func Chatblast() {
 	// Kick off just a single goroutine to
 	// act as a rebroadcaster for all messages
 	go chatblaster()
