@@ -10,4 +10,6 @@ module.exports = Reflux.createActions([
     'setReadyState',
     'setDomain',
     'chatBlast',
+    'subscribe',
+    'unsubscribe',
 ]);

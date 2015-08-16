@@ -3,7 +3,8 @@ var Actions = require('./Actions');
 
 var initialState = {
     "readyState": 0,
-    "chatlog": [],
+    "rooms": [],
+    "currentRoom":"",
     "users": [],
     "self": {},
     "domain": ""
@@ -44,7 +45,16 @@ module.exports = Reflux.createStore({
             //setTimeout(function(){connect(name)}, 1000);
         }
     },
+    getSelectedRoom: function(){
+        for (var i = 0, len = this.state.rooms.length; i < len; i++){
+            if (this.state.rooms[i].selected){
+                return this.state.rooms[i];
+            }
+        }
+    },
     onChatBlast: function(msg){
+        var selected = this.getSelectedRoom();
+        msg.room = selected.id;
         this.sock.send(msg);
         this.trigger(this.state);
     },
@@ -65,11 +75,51 @@ module.exports = Reflux.createStore({
                 case "msg":
                     Actions.addChat(chatblast);
                     break;
+                case "sub":
+                    Actions.subscribe(chatblast);
+                    break;
+                case "unsub":
+                    Actions.unsubscribe(chatblast);
+                    break;
             }
+            console.log(JSON.stringify(chatblast, null, 4));
             this.trigger(this.state);
         } catch (e) {
 
         }
+    },
+    onSubscribe: function(chatblast){
+        var room = chatblast.room;
+        this.state.rooms.forEach(function(current){
+            current.selected = false;
+        });
+        this.state.rooms.push({
+            id: room,
+            chatlog: [],
+            selected: true,
+        });
+        if (!this.state.currentRoom){
+            this.state.currentRoom = room;
+        }
+        this.trigger(this.state);
+    },
+    onUnsubscribe: function(chatblast){
+        var room = chatblast.room;
+        var idx = -1;
+        for (var i = 0, len = this.state.rooms.length; i < len; i++){
+            if (this.state.rooms[i].id === room){
+                idx = i;
+                break;
+            }
+        }
+        if (idx >= 0){
+            this.state.rooms.splice(idx, 1);
+        }
+        this.trigger(this.state);
+    },
+    onSelectRoom: function(id){
+        this.state.currentRoom = id;
+        this.trigger(this.state);
     },
     onGetUsers: function() {
         var request = new XMLHttpRequest();
@@ -108,9 +158,14 @@ module.exports = Reflux.createStore({
         this.trigger(this.state);
     },
     onAddChat: function(chat) {
-        this.state.chatlog.push(chat);
-        if (this.state.chatlog.length > 20) {
-            this.state.chatlog.shift();
+        var room = chat.room;
+        var selected = this.getSelectedRoom();
+        delete chat.room;
+
+        selected.chatlog.push(chat);
+
+        if (selected.chatlog.length > 20) {
+            selected.chatlog.shift();
         }
         this.trigger(this.state);
     },

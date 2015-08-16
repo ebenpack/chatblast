@@ -3,7 +3,7 @@ var Reflux = require('reflux');
 var Store = require('./Store');
 var Chatlog = require('./Chatlog.jsx');
 var Connect = require('./Connect.jsx');
-var Users = require('./Users.jsx');
+var Rooms = require('./Rooms.jsx');
 var Actions = require('./Actions');
 
 var Chatblast = React.createClass({
@@ -17,21 +17,30 @@ var Chatblast = React.createClass({
     var store = this.state;
     var connectClass = 'connect',
         chatClass = 'chat',
-        userClass = 'user';
+        roomClass = 'user';
     if (store.readyState === 0) {
         connectClass += " focus";
         chatClass += " blur";
-        userClass += " blur";
+        roomClass += " blur";
     } else if (store.readyState === 1) {
         chatClass += " focus";
-        userClass += " focus";
+        roomClass += " focus";
         connectClass += " blur";
     }
+    var rooms = store.rooms;
+    var idx = -1;
+    for (var i = 0, len = rooms.length; i < len; i++){
+        if (rooms[i].selected){
+            idx = i;
+            break;
+        }
+    }
+    var chatlog = idx >= 0 ? rooms[idx].chatlog : [];
     return (
       <div className="chatblast">
-        <Chatlog className={chatClass} chatlog={store.chatlog} readyState={store.readyState} />
+        <Chatlog className={chatClass} chatlog={chatlog} readyState={store.readyState} />
         <Connect className={connectClass} readyState={store.readyState} />
-        <Users className={userClass} readyState={store.readyState} users={store.users}  />
+        <Rooms className={roomClass} readyState={store.readyState} rooms={rooms}  />
       </div>
     );
   }
