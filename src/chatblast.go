@@ -12,12 +12,13 @@ import (
 	"time"
 )
 
-var globalRoom = NewRoom("Global", "GLOBAL")
+var globalRoom = NewRoom("Global")
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
+
 
 func sockhandler(w http.ResponseWriter, r *http.Request) {
 	// Check to see if request is from same origin
@@ -46,19 +47,12 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Make user
-	now = time.Now().Unix()
-	self := &User{
-		Name:       name,
-		Subscribed: map[string]*Room{},
-		connection: conn,
-	}
-
+	// Make user and add them to globalRoom
+	self := NewUser(name, conn)
 	self.Subscribe(globalRoom)
 
 	// Register some teardown
 	defer func() {
-		now = time.Now().Unix()
 		globalRoom.Unsubscribe(self)
 		conn.Close()
 	}()
@@ -87,9 +81,14 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			log.Println("Bad JSON")
 		}
-		//
-		msg := Chatblast{Cmd: "msg", Msg: incoming.Data, Usr: *self, Time: now}
-		self.SendMessage(&msg, "Global")
+		var roomId string
+		if incoming.RoomId == "" {
+			roomId = globalRoom.Id
+		} else {
+			roomId = incoming.RoomId 
+		}
+		msg := Chatblast{Cmd: "msg", Msg: incoming.Data, Room: roomId, Usr: *self, Time: now}
+		self.SendMessage(&msg)
 	}
 
 }
