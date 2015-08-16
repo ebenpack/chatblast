@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	chatblast.Chatblast()
+	chatblast.Start()
 }

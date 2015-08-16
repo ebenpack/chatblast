@@ -12,63 +12,14 @@ import (
 	"time"
 )
 
+var globalRoom = NewRoom("Global", "GLOBAL")
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-type msgIncomingData struct {
-	Image string `json:"img,omitempty"`
-	Text  string `json:"text,omitempty"`
-}
-
-type msgIncoming struct {
-	Data []msgIncomingData `json:"data,omitempty"`
-	Type string            `json:"type,omitempty"`
-}
-
-type usr struct {
-	Name       string          `json:"name"`
-	Connected  int64           `json:"connected"`
-	connection *websocket.Conn `json:"-"`
-}
-
-type chatblast struct {
-	Msg  []msgIncomingData `json:"msg,omitempty"`
-	Cmd  string            `json:"cmd,omitempty"`
-	Usr  usr               `json:"user,omitempty"`
-	Time int64             `json:"time,omitempty"`
-}
-
-type sockethub struct {
-	users     map[usr]bool
-	broadcast chan chatblast
-}
-
-// Make a single global hub to
-// keep track of connected users, and to
-// keep our message channel
-var h = sockethub{
-	make(map[usr]bool),
-	make(chan chatblast),
-}
-
-func chatblaster() {
-	// Rebroadcast any messages coming through
-	// the channel to all connected users
-	for incoming := range h.broadcast {
-		start := time.Now()
-		for user := range h.users {
-			user.connection.WriteJSON(incoming)
-		}
-		elapsed := time.Since(start)
-		log.Println("Bam! Chatblast! Only took ", elapsed, " amounts of time!")
-
-	}
-}
-
 func sockhandler(w http.ResponseWriter, r *http.Request) {
-
 	// Check to see if request is from same origin
 	origin := r.Header.Get("origin")
 	if strings.Contains(r.Host, origin) {
@@ -97,21 +48,24 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 
 	// Make user
 	now = time.Now().Unix()
-	self := usr{Name: name, connection: conn, Connected: now}
-	h.users[self] = true
+	self := &User{
+		Name:       name,
+		Subscribed: map[string]*Room{},
+		connection: conn,
+	}
+
+	self.Subscribe(globalRoom)
 
 	// Register some teardown
 	defer func() {
 		now = time.Now().Unix()
-		h.broadcast <- chatblast{Cmd: "logoff", Usr: self, Time: now}
-		delete(h.users, self)
+		globalRoom.Unsubscribe(self)
 		conn.Close()
 	}()
 
+	userArray := globalRoom.GetUsers()
+	log.Println(userArray)
 	now = time.Now().Unix()
-
-	// Broadcast a login notice
-	h.broadcast <- chatblast{Cmd: "login", Usr: self, Time: now}
 
 	// Read incomining requests from connected client, and
 	// broadcast to all other connected clients
@@ -119,21 +73,23 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 		var err error
 		_, p, err := conn.ReadMessage()
 		if err != nil {
+			log.Println("bad!")
 			return
 		}
 		now = time.Now().Unix()
 
 		// Parse out JSON request
-		var msg msgIncoming
-		err = json.Unmarshal(p, &msg)
+		var incoming msgIncoming
+		err = json.Unmarshal(p, &incoming)
 		if err != nil {
 			// TODO Return some kind of error message
 			// to the client only
 			log.Println(err)
 			log.Println("Bad JSON")
 		}
-		h.broadcast <- chatblast{Cmd: "msg", Msg: msg.Data, Usr: self, Time: now}
-
+		//
+		msg := Chatblast{Cmd: "msg", Msg: incoming.Data, Usr: *self, Time: now}
+		self.SendMessage(&msg, "Global")
 	}
 
 }
@@ -147,28 +103,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func userHandler(w http.ResponseWriter, r *http.Request) {
-	userArray := make([]usr, 0)
-	for user := range h.users {
-		userArray = append(userArray, user)
-	}
-	userJSON := map[string][]usr{
-		"users": userArray,
-	}
-	resp, err := json.Marshal(userJSON)
-	if err != nil {
-		log.Println("Error retrieving users")
-	} else {
-		head := w.Header()
-		head.Add("content-type", "application/json")
-		w.Write(resp)
-	}
-}
-
 func jsHandler(w http.ResponseWriter, r *http.Request) {
 	// Serve some static JS files
-	log.Println("jshandler")
-	log.Println(r.URL.Path[1:])
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
@@ -178,17 +114,14 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(dir)
 	http.HandleFunc("/", handler)
-	http.HandleFunc("/users", userHandler)
 	http.Handle("/js/", http.FileServer(http.Dir(dir)))
 	http.HandleFunc("/sock", sockhandler)
 }
 
-func Chatblast() {
+func Start() {
 	// Kick off just a single goroutine to
 	// act as a rebroadcaster for all messages
-	go chatblaster()
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())
