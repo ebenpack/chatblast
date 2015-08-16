@@ -7,14 +7,14 @@ var Chat = React.createClass({
             dateString = util.convertFromEpoch(chat.time),
             output = false;
 
-        var serializedChat = chat.msg.map(function(curr){
+        var serializedChat = chat.msg.map(function(curr, idx){
             var output = false;
             if (curr.text){
-                output = (<span>{curr.text}</span>);
+                output = (<span key={idx} >{curr.text}</span>);
             } else if (curr.img64){
-                output = (<img src={curr.img64} />);
+                output = (<img key={idx} src={curr.img64} />);
             } else if (curr.img){
-                output = (<img src={curr.img} />);
+                output = (<img key={idx} src={curr.img} />);
             }
             return output;
         });
