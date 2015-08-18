@@ -1,120 +1,66 @@
 package chatblast
 
-import "time"
-import "log"
+import (
+	"log"
+)
 
 type Room struct {
-	Name        string          `json:"name,omitempty"`
-	Id          string          `json:"id,omitempty"`
-	IsPublic    bool            `json:"isPublic,omitempty"`
-	Owner       *User           `json:"-"`
-	Admins      map[*User]bool  `json:"admins,omitempty"`
-	Subscribers map[*User]bool  `json:"subscribers,omitempty"`
-	Invitees    map[*User]bool  `json:"-"`
-	Channel     chan *Chatblast `json:"-"`
+	Name        string
+	Id          string
+	Private     bool
+	Owner       *User
+	Subscribers map[string]*User
 }
 
-func NewRoom(name string) *Room {
-	newRoom := &Room{
+func NewRoom(name string, owner *User) *Room {
+	room := &Room{
 		Name:        name,
 		Id:          GUID(),
-		Admins:      map[*User]bool{},
-		Subscribers: map[*User]bool{},
-		Invitees:    map[*User]bool{},
-		Channel:     make(chan *Chatblast),
+		Owner:       owner,
+		Subscribers: map[string]*User{},
 	}
-	go newRoom.RoomListener()
-	return newRoom
+	return room
 }
 
-func NewUserRoom(name string, user *User) *Room {
-	newRoom := &Room{
-		Name:        name,
-		Id:          GUID(),
-		Admins:      map[*User]bool{user: true},
-		Subscribers: map[*User]bool{user: true},
-		Invitees:    map[*User]bool{},
-		Channel:     make(chan *Chatblast),
-	}
-	go newRoom.RoomListener()
-	return newRoom
-}
-
-func (r *Room) RoomListener() {
-	for incoming := range r.Channel {
-		for sub, _ := range r.Subscribers {
-			sub.connection.WriteJSON(incoming)
-		}
+func (r *Room) Broadcast(msg *Message) {
+	for _, user := range r.Subscribers {
+		user.Channel <- msg
 	}
 }
 
-func (r *Room) Broadcast(msg *Chatblast) {
-	log.Println(msg)
-	r.Channel <- msg
-}
-
-func (r *Room) GetAdmins() []User {
-	adminArray := make([]User, 0)
-	for admin, _ := range r.Admins {
-		adminArray = append(adminArray, *admin)
+func (r *Room) Whisper(msg *Message, userId string) {
+	whisperee, ok := r.Subscribers[userId]
+	if ok {
+		whisperee.Channel <- msg
 	}
-	return adminArray
 }
 
-func (r *Room) GetUsers() []User {
-	userArray := make([]User, 0)
-	for user, _ := range r.Subscribers {
-		userArray = append(userArray, *user)
+func (r *Room) RequestInvite(u *User) {
+	msg := &Message{
+		Cmd:    "inviterequest",
+		RoomId: r.Id,
+		UserId: u.Id,
 	}
-	return userArray
+	r.Owner.Channel <- msg
 }
 
-//func (r *Room) AddAdmin(admin *User) {
-//	r.Admins[admin] = true
-//}
-
-//func (r *Room) RemoveAdmin(admin *User) {
-//	delete(r.Admins, admin)
-//	if len(r.Admins) == 0 {
-//		r.CloseRoom()
-//	}
-//}
-
-//func (r *Room) Invite(inviter *User, invitee *User) {
-
-//}
-//func (r *Room) AcceptInvite(inviter *User, invitee *User) {
-//	for sub, _ := range r.Subscribers {
-//		msg := Chatblast{Cmd: "logoff"}
-//		sub.Channel <- &msg
-//	}
-//}
-//func (r *Room) DeclineInvite(inviter *User, invitee *User) {
-//	for sub, _ := range r.Subscribers {
-//		msg := Chatblast{Cmd: "logoff"}
-//		sub.Channel <- &msg
-//	}
-//}
-
-func (r *Room) Subscribe(u *User) {
-	log.Println("Login:", u)
-	r.Subscribers[u] = true
-	now := time.Now().Unix()
-	msg := Chatblast{Cmd: "sub", Usr: *u, Room: r.Id, Time: now}
-	r.Broadcast(&msg)
-}
-
-func (r *Room) Unsubscribe(u *User) {
-	now := time.Now().Unix()
-	msg := Chatblast{Cmd: "unsub", Usr: *u, Room: r.Id, Time: now}
-	r.Broadcast(&msg)
-	delete(r.Subscribers, u)
-}
-
-func (r *Room) CloseRoom() {
-	defer close(r.Channel)
-	for sub, _ := range r.Subscribers {
-		msg := Chatblast{Cmd: "closing"}
-		sub.Channel <- &msg
+func (r *Room) Join(u *User) {
+	r.Subscribers[u.Id] = u
+	msg := &Message{
+		Cmd:    "join",
+		RoomId: r.Id,
+		UserId: u.Id,
 	}
+	r.Broadcast(msg)
+}
+
+func (r *Room) Leave(u *User) {
+	delete(r.Subscribers, u.Id)
+	msg := &Message{
+		Cmd:    "leave",
+		RoomId: r.Id,
+		UserId: u.Id,
+	}
+	log.Println(r)
+	r.Broadcast(msg)
 }
