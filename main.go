@@ -99,7 +99,6 @@ func debughandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func jsHandler(w http.ResponseWriter, r *http.Request) {
 	// Serve some static JS files
 	http.ServeFile(w, r, r.URL.Path[1:])
