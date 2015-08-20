@@ -1,8 +1,13 @@
 package chatblast
 
+type messageData struct {
+	Image string `json:"img,omitempty"`
+	Text  string `json:"text,omitempty"`
+}
+
 type Message struct {
-	Cmd    string `json:"cmd,omitempty"`
-	Msg    string `json:"msg,omitempty"`
-	RoomId string `json:"rid,omitempty"`
-	UserId string `json:"uid,omitempty"`
+	Msg    []messageData `json:"data,omitempty"`
+	Cmd    string        `json:"cmd,omitempty"`
+	RoomId string        `json:"rid,omitempty"`
+	UserId string        `json:"uid,omitempty"`
 }
