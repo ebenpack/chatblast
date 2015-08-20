@@ -90,6 +90,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func debughandler(w http.ResponseWriter, r *http.Request) {
+	// Serve up an HTML template to bootstrap everything
+	t, _ := template.ParseFiles("html/debug.html")
+	err := t.Execute(w, r.Host)
+	if err != nil {
+		log.Println("uh oh!")
+	}
+}
+
+
 func jsHandler(w http.ResponseWriter, r *http.Request) {
 	// Serve some static JS files
 	http.ServeFile(w, r, r.URL.Path[1:])
@@ -102,6 +112,7 @@ func init() {
 		log.Fatal(err)
 	}
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/debug", debughandler)
 	http.Handle("/js/", http.FileServer(http.Dir(dir)))
 	http.HandleFunc("/sock", sockhandler)
 }

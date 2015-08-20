@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Websocks</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+    <style>
+        html, *, *:before, *:after {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        img {
+            max-width: 100%;
+        }
+        .focus {
+            background-color: aliceblue;
+        }
+        .connect {
+            position: absolute;
+        }
+        .connect, .chat {
+            padding: 30px;
+            transition: visibility 2s, background-color 2s, opacity 2s;
+        }
+        .blur {
+            opacity: 0;
+            visibility:hidden;
+        }
+        .textInput {
+            white-space: pre;
+            background-color: white;
+            border: 1px solid #C3C3C3;
+            min-height: 100px;
+        }
+        .messages {
+            word-wrap: break-word;
+        }
+        .messages > div:nth-child(odd){
+            background-color: white;
+        }
+        .messages div.command {
+            background-color: #FDE8E8;
+        }
+        .payload {
+            white-space: pre;
+        }
+        textarea {
+            width: 100%;
+        }
+        input {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div contenteditable style="width:300px;height:200px;border:1px solid black;" id="input"></div>
+    <button id="submit">SUBMIT</button>
+<div class="row">
+     <pre id="sent" style="border:1px dashed gray; min-height: 100px" class="six columns"></pre>
+    <pre id="received" style="border:1px dashed gray; min-height: 100px" class="six columns"></pre>
+  </div>
+   
+</div>
+    <script>
+    (function(){
+    var input = document.getElementById('input');
+    var submit = document.getElementById('submit');
+    var sent = document.getElementById('sent');
+    var received = document.getElementById('received');
+    var roomId;
+    var sock;
+    var domain = "{{.}}";
+    function connect(name) {
+        var nameQS = name ? ('?name=' + name) : '';
+        sock = new WebSocket("ws://" + domain + "/sock" + nameQS);
+        try {
+
+            console.log("Websocket - status: " + sock.readyState);
+            sock.onopen = function(m) {
+                console.log("CONNECTION opened..." + sock.readyState);
+            };
+            sock.onmessage = function(m) {
+                received.innerHTML = JSON.stringify(JSON.parse(m.data), null, 4) + '\n' + received.innerHTML;
+            };
+            sock.onerror = function(m) {
+                console.log("Error occured sending..." + m.data);
+            };
+            sock.onclose = function(m) {
+                console.log("Disconnected - status " + sock.readyState);
+                //setTimeout(function(){connect(name)}, 1000);
+            };
+        } catch (exception) {
+            console.log(exception);
+            //setTimeout(function(){connect(name)}, 1000);
+        }
+    }
+    connect('David Lo Pan');
+    function send(){
+         var chatBox = input;
+    function serialize (prev, curr) {
+        if (typeof curr === "string"){
+            prev.push({text: curr});
+            return prev;
+        } else if (curr.nodeName === "#text"){
+            prev.push({text: curr.textContent});
+            return prev;
+        } else if (curr.nodeName && curr.nodeName.toLowerCase() === "div") {
+            prev.push.apply(prev, Array.prototype.reduce.call(curr.childNodes, serialize, []));
+            return prev;
+        } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
+            prev.push({img: curr.src});
+            return prev;
+        } else {
+            return prev;
+        }
+    }
+    chatBox.normalize();
+    function chatBlast(msg){
+        msg.room = 'global';
+        sock.send(msg);
+    }
+    var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
+    if (msg.length !== 0){
+        msg = JSON.stringify({"type":"msg", "data":msg}, null, 4);
+        sent.innerHTML = msg + '\n' +  sent.innerHTML;
+        chatBlast(msg);
+        chatBox.textContent = '';
+    }
+
+    }
+    submit.addEventListener('click', function(e){
+        send();
+    });
+   
+        })();
+    </script>
+</body>
+</html>
