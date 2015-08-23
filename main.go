@@ -64,12 +64,11 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Println(globalRC.GetUsers("global"))
 		// Parse out JSON request
 		var incoming chatblast.Message
 		err = json.Unmarshal(p, &incoming)
 		incoming.UserId = self.Id
-		incoming.RoomId = self.RoomId
+		incoming.User = self
 		if err != nil {
 			// TODO Return some kind of error message
 			// to the client only
