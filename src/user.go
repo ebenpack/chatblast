@@ -2,6 +2,7 @@ package chatblast
 
 import (
 	"github.com/gorilla/websocket"
+	"log"
 )
 
 type User struct {
@@ -18,6 +19,10 @@ func (u *User) Listen() {
 	}
 }
 
+func (u *User) Tell(msg *Message) {
+	u.Channel <- msg
+}
+
 func NewUser(name string, conn *websocket.Conn) *User {
 	newUser := &User{
 		Name:    name,
@@ -26,6 +31,7 @@ func NewUser(name string, conn *websocket.Conn) *User {
 		Channel: make(chan *Message),
 		Conn:    conn,
 	}
+	log.Println("New user", name, "created")
 	go newUser.Listen()
 	return newUser
 }
