@@ -15,20 +15,20 @@ type Room struct {
 	Channel     chan *Message
 }
 
-func (r *Room) GetSubscriber(userId string) (*User, bool){
+func (r *Room) GetSubscriber(userId string) (*User, bool) {
 	r.RLock()
 	defer r.RUnlock()
 	user, ok := r.Subscribers[userId]
 	return user, ok
 }
 
-func (r *Room) SetSubscriber(userId string, u *User){
+func (r *Room) SetSubscriber(userId string, u *User) {
 	r.Lock()
 	defer r.Unlock()
 	r.Subscribers[userId] = u
 }
 
-func (r *Room) RemoveSubscriber(userId string){
+func (r *Room) RemoveSubscriber(userId string) {
 	r.Lock()
 	defer r.Unlock()
 	delete(r.Subscribers, userId)

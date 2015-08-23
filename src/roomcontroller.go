@@ -11,21 +11,21 @@ import (
 
 type RoomController struct {
 	// Map of room Ids to rooms
-	Rooms map[string]*Room
+	Rooms     map[string]*Room
 	RoomsLock sync.RWMutex
 	// Map of user Ids to users
-	Users   map[string]*User
+	Users     map[string]*User
 	UsersLock sync.RWMutex
-	Channel chan *Message
+	Channel   chan *Message
 }
 
 func MakeRoomController() *RoomController {
 	rc := &RoomController{
-		Rooms:   make(map[string]*Room),
+		Rooms:     make(map[string]*Room),
 		RoomsLock: sync.RWMutex{},
-		Users:   make(map[string]*User),
+		Users:     make(map[string]*User),
 		UsersLock: sync.RWMutex{},
-		Channel: make(chan *Message),
+		Channel:   make(chan *Message),
 	}
 	log.Println("New RoomController created")
 	// Add global (ownerless) room
@@ -50,7 +50,7 @@ func (rc *RoomController) GetRoom(roomId string) (*Room, bool) {
 	return room, ok
 }
 
-func (rc *RoomController) SetRoom(roomId string, room *Room){
+func (rc *RoomController) SetRoom(roomId string, room *Room) {
 	rc.RoomsLock.Lock()
 	defer rc.RoomsLock.Unlock()
 	rc.Rooms[roomId] = room
@@ -69,7 +69,7 @@ func (rc *RoomController) GetUser(userId string) (*User, bool) {
 	return user, ok
 }
 
-func (rc *RoomController) SetUser(userId string, u *User){
+func (rc *RoomController) SetUser(userId string, u *User) {
 	rc.UsersLock.Lock()
 	defer rc.UsersLock.Unlock()
 	rc.Users[userId] = u
@@ -87,8 +87,8 @@ func (rc *RoomController) AddRoom(name string, u *User) {
 	rc.Subscribe(u, newRoom.Id)
 	msg := &Message{
 		RoomId: "global",
-		Cmd: "newrm",
-		Text: name,
+		Cmd:    "newrm",
+		Text:   name,
 	}
 	rc.Dispatch(msg)
 	log.Println("New room", name, "created")
