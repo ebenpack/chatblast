@@ -56,7 +56,15 @@
 <body>
 <div class="container">
     <div contenteditable style="width:300px;height:200px;border:1px solid black;" id="input"></div>
+    <label>Send to room: <input type="text" id="sendrm"></label>
     <button id="submit">SUBMIT</button>
+
+    <label>Room Name: <input type="text" id="newroomname"></label>
+    <button id="newroom">SUBMIT</button>
+
+    <label>Room ID: <input type="text" id="closeroomname"></label>
+    <button id="closeroom">SUBMIT</button>
+
 <div class="row">
      <pre id="sent" style="border:1px dashed gray; min-height: 100px" class="six columns"></pre>
     <pre id="received" style="border:1px dashed gray; min-height: 100px" class="six columns"></pre>
@@ -64,7 +72,7 @@
    
 </div>
     <script>
-    (function(){
+(function() {
     var input = document.getElementById('input');
     var submit = document.getElementById('submit');
     var sent = document.getElementById('sent');
@@ -72,6 +80,7 @@
     var roomId;
     var sock;
     var domain = "{{.}}";
+
     function connect(name) {
         var nameQS = name ? ('?name=' + name) : '';
         sock = new WebSocket("ws://" + domain + "/sock" + nameQS);
@@ -97,44 +106,73 @@
         }
     }
     connect('David Lo Pan');
-    function send(){
-         var chatBox = input;
-    function serialize (prev, curr) {
-        if (typeof curr === "string"){
-            prev.push({text: curr});
-            return prev;
-        } else if (curr.nodeName === "#text"){
-            prev.push({text: curr.textContent});
-            return prev;
-        } else if (curr.nodeName && curr.nodeName.toLowerCase() === "div") {
-            prev.push.apply(prev, Array.prototype.reduce.call(curr.childNodes, serialize, []));
-            return prev;
-        } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
-            prev.push({img: curr.src});
-            return prev;
-        } else {
-            return prev;
-        }
-    }
-    chatBox.normalize();
-    function chatBlast(msg){
-        msg.room = 'global';
+
+    function chatBlast(msg) {
         sock.send(msg);
-    }
-    var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
-    if (msg.length !== 0){
-        msg = JSON.stringify({"type":"msg", "data":msg}, null, 4);
-        sent.innerHTML = msg + '\n' +  sent.innerHTML;
-        chatBlast(msg);
-        chatBox.textContent = '';
+        sent.innerHTML = msg + '\n' + sent.innerHTML;
     }
 
+    function send() {
+        var chatBox = input;
+
+        function serialize(prev, curr) {
+            if (typeof curr === "string") {
+                prev.push({
+                    text: curr
+                });
+                return prev;
+            } else if (curr.nodeName === "#text") {
+                prev.push({
+                    text: curr.textContent
+                });
+                return prev;
+            } else if (curr.nodeName && curr.nodeName.toLowerCase() === "div") {
+                prev.push.apply(prev, Array.prototype.reduce.call(curr.childNodes, serialize, []));
+                return prev;
+            } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
+                prev.push({
+                    img: curr.src
+                });
+                return prev;
+            } else {
+                return prev;
+            }
+        }
+        chatBox.normalize();
+
+        var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
+        if (msg.length !== 0) {
+            var roomname = document.getElementById("sendrm").value;
+            var room = roomname || 'global';
+            msg = JSON.stringify({
+                "data": msg,
+                "cmd": "msg",
+                rid: room
+            }, null, 4);
+            chatBlast(msg);
+            chatBox.textContent = '';
+        }
+
     }
-    submit.addEventListener('click', function(e){
+    submit.addEventListener('click', function(e) {
         send();
     });
-   
-        })();
+    document.getElementById('newroom').addEventListener('click', function(e) {
+        var val = document.getElementById('newroomname').value;
+        chatBlast(JSON.stringify({
+            "text": val,
+            "cmd": "addrm"
+        }));
+    });
+    document.getElementById('closeroom').addEventListener('click', function(e) {
+        var val = document.getElementById('closeroomname').value;
+        chatBlast(JSON.stringify({
+            "text": val,
+            "cmd": "remvrm"
+        }));
+    });
+
+})();
     </script>
 </body>
 </html>
