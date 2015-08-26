@@ -9,12 +9,10 @@ var Chat = React.createClass({
 
         var serializedChat = chat.msg.map(function(curr, idx){
             var output = false;
-            if (curr.text){
-                output = (<span key={idx} >{curr.text}</span>);
-            } else if (curr.img64){
-                output = (<img key={idx} src={curr.img64} />);
-            } else if (curr.img){
-                output = (<img key={idx} src={curr.img} />);
+            if (curr.name === "text"){
+                output = (<span key={idx} >{curr.value}</span>);
+            } else if (curr.name === "img"){
+                output = (<img key={idx} src={curr.value} />);
             }
             return output;
         });

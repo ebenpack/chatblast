@@ -13,7 +13,7 @@ var Rooms = React.createClass({
     render: function(){
         return (
             <div className={this.props.className + ' six columns'} >
-                {this.props.rooms.map(function(room){
+                {Object.keys(this.props.rooms).sort().map(function(room){
                     return (<div key={room.id}>Room {room.id}</div>);
                 })}
             </div>

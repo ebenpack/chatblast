@@ -3,8 +3,8 @@ var Actions = require('./Actions');
 
 var initialState = {
     "readyState": 0,
-    "rooms": [],
-    "currentRoom":"",
+    "rooms": {},
+    "currentRoom":"global",
     "users": [],
     "self": {},
     "domain": ""
@@ -45,17 +45,10 @@ module.exports = Reflux.createStore({
             //setTimeout(function(){connect(name)}, 1000);
         }
     },
-    getSelectedRoom: function(){
-        for (var i = 0, len = this.state.rooms.length; i < len; i++){
-            if (this.state.rooms[i].selected){
-                return this.state.rooms[i];
-            }
-        }
-    },
     onChatBlast: function(msg){
-        var selected = this.getSelectedRoom();
-        msg.room = selected.id;
-        this.sock.send(msg);
+        msg = JSON.parse(msg);
+        msg.rid = this.state.currentRoom;
+        this.sock.send(JSON.stringify(msg));
         this.trigger(this.state);
     },
     onSetReadyState: function(readyState){
@@ -158,16 +151,15 @@ module.exports = Reflux.createStore({
         this.trigger(this.state);
     },
     onAddChat: function(chat) {
-        var room = chat.room;
-        var selected = this.getSelectedRoom();
-        delete chat.room;
+        var room = this.state.rooms[chat.rid];
+        if (room) {
+            room.chatlog.push(chat);
 
-        selected.chatlog.push(chat);
-
-        if (selected.chatlog.length > 20) {
-            selected.chatlog.shift();
+            if (room.chatlog.length > 20) {
+                room.chatlog.shift();
+            }
+            this.trigger(this.state);
         }
-        this.trigger(this.state);
     },
     onSetDomain: function(domain){
         this.state.domain = domain;

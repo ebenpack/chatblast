@@ -118,12 +118,14 @@
         function serialize(prev, curr) {
             if (typeof curr === "string") {
                 prev.push({
-                    text: curr
+                    name: "text",
+                    value: curr
                 });
                 return prev;
             } else if (curr.nodeName === "#text") {
                 prev.push({
-                    text: curr.textContent
+                    name: "text",
+                    value: curr.textContent
                 });
                 return prev;
             } else if (curr.nodeName && curr.nodeName.toLowerCase() === "div") {
@@ -131,7 +133,8 @@
                 return prev;
             } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
                 prev.push({
-                    img: curr.src
+                    name: "img",
+                    value: curr.src
                 });
                 return prev;
             } else {

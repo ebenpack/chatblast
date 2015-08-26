@@ -1,8 +1,8 @@
 package chatblast
 
 type messageData struct {
-	Image string `json:"img,omitempty"`
-	Text  string `json:"text,omitempty"`
+	Name string `json:"name,omitempty"`
+	Value  string `json:"value,omitempty"`
 }
 
 type Message struct {

@@ -51,18 +51,27 @@ var Chatlog = React.createClass({
     },
   submit: function() {
     var chatBox = React.findDOMNode(this.refs.msg);
-    function serialize (prev, curr) {
-        if (typeof curr === "string"){
-            prev.push({text: curr});
+    function serialize(prev, curr) {
+        if (typeof curr === "string") {
+            prev.push({
+                name: "text",
+                value: curr
+            });
             return prev;
-        } else if (curr.nodeName === "#text"){
-            prev.push({text: curr.textContent});
+        } else if (curr.nodeName === "#text") {
+            prev.push({
+                name: "text",
+                value: curr.textContent
+            });
             return prev;
         } else if (curr.nodeName && curr.nodeName.toLowerCase() === "div") {
             prev.push.apply(prev, Array.prototype.reduce.call(curr.childNodes, serialize, []));
             return prev;
         } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
-            prev.push({img: curr.src});
+            prev.push({
+                name: "img",
+                value: curr.src
+            });
             return prev;
         } else {
             return prev;
@@ -71,7 +80,7 @@ var Chatlog = React.createClass({
     chatBox.normalize();
     var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
     if (msg.length !== 0){
-        Actions.chatBlast(JSON.stringify({"type":"msg", "data":msg}));
+        Actions.chatBlast(JSON.stringify({"cmd":"msg", "data":msg}));
         chatBox.textContent = '';
     }
   },
