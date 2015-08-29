@@ -6,11 +6,10 @@ import (
 )
 
 type User struct {
-	Name    string
-	Id      string
-	RoomId  string // RoomId for the room a user is currently in
-	Channel chan *Message
-	Conn    *websocket.Conn
+	Name    string          `json:"name,omitempty"`
+	Id      string          `json:"id,omitempty"`
+	Channel chan *Message   `json:"-"`
+	Conn    *websocket.Conn `json:"-"`
 }
 
 func (u *User) Listen() {
@@ -27,7 +26,6 @@ func NewUser(name string, conn *websocket.Conn) *User {
 	newUser := &User{
 		Name:    name,
 		Id:      GUID(),
-		RoomId:  "global",
 		Channel: make(chan *Message),
 		Conn:    conn,
 	}
