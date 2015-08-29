@@ -82,21 +82,24 @@ func (rc *RoomController) DeleteUser(userId string) {
 }
 
 func (rc *RoomController) AddRoom(name string, u *User) {
+	// TODO Only allow uniquely named rooms?
 	newRoom := NewRoom(name, u)
 	rc.SetRoom(newRoom.Id, newRoom)
 	rc.Subscribe(u, newRoom.Id)
 	msg := &Message{
 		RoomId: "global",
 		Cmd:    "newrm",
-		Text:   name,
+		Msg: []messageData{
+			{Name: "rid", Value: newRoom.Id},
+			{Name: "name", Value: name},
+		},
 	}
 	rc.Dispatch(msg)
 	log.Println("New room", name, "created")
 }
 
 func (rc *RoomController) RemoveRoom(rid string, u *User) {
-	room, ok := rc.GetRoom(rid)
-	if ok {
+	if room, ok := rc.GetRoom(rid); ok {
 		closed, err := room.CloseRoom(u)
 		if err != nil {
 			log.Println("Uh oh!")
@@ -122,25 +125,40 @@ func (rc *RoomController) AddUser(u *User) {
 
 func (rc *RoomController) RemoveUser(u *User) {
 	rc.DeleteUser(u.Id)
-	rc.Unsubscribe(u, u.RoomId)
+	for _, room := range rc.Rooms {
+		if room.Owner == u {
+			rc.RemoveRoom(room.Id, u)
+		} else if _, ok := room.GetSubscriber(u.Id); ok {
+			rc.Unsubscribe(u, room.Id)
+		}
+	}
 	log.Println("User", u.Name, "removed from RoomController")
 }
 
 func (rc *RoomController) Subscribe(u *User, roomId string) {
-	room, ok := rc.GetRoom(roomId)
-	if ok {
+	if room, ok := rc.GetRoom(roomId); ok {
 		room.Join(u)
+		log.Println("User", u.Name, "subscribed to", room.Name)
+	} else {
+		msg := &Message{
+			Cmd:  "err",
+			Text: "Room does not exist",
+		}
+		u.Tell(msg)
 	}
-	log.Println("User", u.Name, "subscribed to", room.Name)
 }
 
 func (rc *RoomController) Unsubscribe(u *User, roomId string) {
-	room, ok := rc.GetRoom(roomId)
-	if ok {
+	if room, ok := rc.GetRoom(roomId); ok {
 		room.Leave(u)
-		u.RoomId = ""
+		log.Println("User", u.Name, "unsubscribed from", room.Name)
+	} else {
+		msg := &Message{
+			Cmd:  "err",
+			Text: "Room does not seem to exist",
+		}
+		u.Tell(msg)
 	}
-	log.Println("User", u.Name, "unsubscribed from", room.Name)
 }
 
 func (rc *RoomController) Broadcast(msg *Message) {
@@ -148,30 +166,60 @@ func (rc *RoomController) Broadcast(msg *Message) {
 	rc.Channel <- msg
 }
 
-func (rc *RoomController) GetUsers(roomId string) []*User {
-	var userArray []*User
-	room, ok := rc.GetRoom(roomId)
-	if ok {
-		for _, user := range room.Subscribers {
-			userArray = append(userArray, user)
-		}
-	}
-	return userArray
-}
+//func (rc *RoomController) GetUsers(roomId string) []*User {
+//	var userArray []*User
+//	if room, ok := rc.GetRoom(roomId); ok {
+//		for _, user := range room.Subscribers {
+//			userArray = append(userArray, user)
+//		}
+//	}
+//	return userArray
+//}
+
+//func (rc *RoomController) GetRooms(roomId string) []*Room {
+//	var userArray []*User
+//	if room, ok := rc.GetRoom(roomId); ok {
+//		for _, user := range room.Subscribers {
+//			userArray = append(userArray, user)
+//		}
+//	}
+//	return userArray
+//}
 
 func (rc *RoomController) Dispatch(incoming *Message) {
 	switch incoming.Cmd {
 	case "sub":
-		rc.Subscribe(incoming.User, incoming.RoomId)
+		if incoming.RoomId != "" {
+			rc.Subscribe(incoming.User, incoming.RoomId)
+		} else {
+			log.Println("Bad sub request")
+		}
+		// TODO error handling
 	case "unsub":
-		rc.Unsubscribe(incoming.User, incoming.RoomId)
+		if incoming.RoomId != "" {
+			rc.Unsubscribe(incoming.User, incoming.RoomId)
+		} else {
+			log.Println("Bad unsub request")
+		}
+		// TODO error handling
 	case "addrm":
-		rc.AddRoom(incoming.Text, incoming.User)
+		if incoming.Text != "" {
+			rc.AddRoom(incoming.Text, incoming.User)
+		} else {
+			log.Println("Bad addrm request")
+		}
+		// TODO error handling
 	case "remvrm":
-		rc.RemoveRoom(incoming.RoomId, incoming.User)
+		if incoming.RoomId != "" {
+			rc.RemoveRoom(incoming.RoomId, incoming.User)
+		} else {
+			log.Println("Bad remvrm request")
+		}
+		// TODO error handling
+		//	case "wspr":
+		//		TODO add whispers
 	default:
-		room, ok := rc.GetRoom(incoming.RoomId)
-		if ok {
+		if room, ok := rc.GetRoom(incoming.RoomId); ok {
 			room.Broadcast(incoming)
 		}
 	}
