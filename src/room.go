@@ -7,12 +7,12 @@ import (
 
 type Room struct {
 	sync.RWMutex
-	Name        string
-	Id          string
-	Private     bool
-	Owner       *User
-	Subscribers map[string]*User
-	Channel     chan *Message
+	Name        string           `json:"name,omitempty"`
+	Id          string           `json:"id,omitempty"`
+	Private     bool             `json:"private,omitempty"`
+	Owner       *User            `json:"owner,omitempty"`
+	Subscribers map[string]*User `json:"subscribers,omitempty"`
+	Channel     chan *Message    `json:"-"`
 }
 
 func (r *Room) GetSubscriber(userId string) (*User, bool) {
@@ -61,8 +61,7 @@ func (r *Room) Broadcast(msg *Message) {
 }
 
 func (r *Room) Whisper(msg *Message, userId string) {
-	whisperee, ok := r.Subscribers[userId]
-	if ok {
+	if whisperee, ok := r.Subscribers[userId]; ok {
 		whisperee.Tell(msg)
 	}
 }
@@ -77,9 +76,11 @@ func (r *Room) RequestInvite(u *User) {
 }
 
 func (r *Room) Join(u *User) {
+	// TODO Add re-join check
 	r.SetSubscriber(u.Id, u)
 	msg := &Message{
 		Cmd:    "join",
+		Text:   u.Name,
 		RoomId: r.Id,
 		UserId: u.Id,
 	}
@@ -87,6 +88,8 @@ func (r *Room) Join(u *User) {
 }
 
 func (r *Room) Leave(u *User) {
+	// TODO Add bad leave request check (i.e. user tries to leave room they
+	// aren't subscribed to)
 	r.RemoveSubscriber(u.Id)
 	msg := &Message{
 		Cmd:    "leave",
