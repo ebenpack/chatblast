@@ -56,15 +56,14 @@
 <body>
 <div class="container">
     <div contenteditable style="width:300px;height:200px;border:1px solid black;" id="input"></div>
-    <label>Send to room: <input type="text" id="sendrm"></label>
-    <button id="submit">SUBMIT</button>
-
-    <label>Room Name: <input type="text" id="newroomname"></label>
-    <button id="newroom">SUBMIT</button>
-
-    <label>Room ID: <input type="text" id="closeroomname"></label>
-    <button id="closeroom">SUBMIT</button>
-
+    <div id="inputs">
+        <input type="text" id="textinput">
+        <label>Send to room: <button id="submit">SUBMIT</button></label>
+        <label>New room: <button id="newroom">SUBMIT</button></label>
+        <label>Close room: <button id="closeroom">SUBMIT</button></label>
+        <label>Subscribe: <button id="sub">SUBMIT</button></label>
+        <label>Unsubscribe: <button id="unsub">SUBMIT</button></label>
+    </div>
 <div class="row">
      <pre id="sent" style="border:1px dashed gray; min-height: 100px" class="six columns"></pre>
     <pre id="received" style="border:1px dashed gray; min-height: 100px" class="six columns"></pre>
@@ -112,7 +111,7 @@
         sent.innerHTML = msg + '\n' + sent.innerHTML;
     }
 
-    function send() {
+    function send(rid) {
         var chatBox = input;
 
         function serialize(prev, curr) {
@@ -145,8 +144,7 @@
 
         var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
         if (msg.length !== 0) {
-            var roomname = document.getElementById("sendrm").value;
-            var room = roomname || 'global';
+            var room = rid || 'global';
             msg = JSON.stringify({
                 "data": msg,
                 "cmd": "msg",
@@ -157,21 +155,37 @@
         }
 
     }
+    var textinput = document.getElementById('textinput');
     submit.addEventListener('click', function(e) {
-        send();
+        var rid = textinput.value;
+        send(rid);
     });
     document.getElementById('newroom').addEventListener('click', function(e) {
-        var val = document.getElementById('newroomname').value;
+        var val = textinput.value;
         chatBlast(JSON.stringify({
-            "text": val,
+            "txt": val,
             "cmd": "addrm"
         }));
     });
     document.getElementById('closeroom').addEventListener('click', function(e) {
-        var val = document.getElementById('closeroomname').value;
+        var val = textinput.value;
         chatBlast(JSON.stringify({
-            "text": val,
+            "rid": val,
             "cmd": "remvrm"
+        }));
+    });
+    document.getElementById('sub').addEventListener('click', function(e) {
+        var val = textinput.value;
+        chatBlast(JSON.stringify({
+            "rid": val,
+            "cmd": "sub"
+        }));
+    });
+    document.getElementById('unsub').addEventListener('click', function(e) {
+        var val = textinput.value;
+        chatBlast(JSON.stringify({
+            "rid": val,
+            "cmd": "unsub"
         }));
     });
 
