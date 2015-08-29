@@ -13,6 +13,7 @@ import (
 	"strings"
 )
 
+// Instantiate global roomcontroller
 var globalRC = chatblast.MakeRoomController()
 
 var upgrader = websocket.Upgrader{
@@ -56,7 +57,7 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Read incomining requests from connected client, and
-	// broadcast to all other connected clients
+	// broadcast to roomcontroller
 	for {
 		var err error
 		_, p, err := conn.ReadMessage()
@@ -67,15 +68,15 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 		// Parse out JSON request
 		var incoming chatblast.Message
 		err = json.Unmarshal(p, &incoming)
-		incoming.UserId = self.Id
-		incoming.User = self
 		if err != nil {
-			// TODO Return some kind of error message
-			// to the client only
-			log.Println(err)
-			log.Println("Bad JSON")
+			incoming.Cmd = "err"
+			incoming.Text = "Bad JSON"
+			self.Tell(&incoming)
+		} else {
+			incoming.UserId = self.Id
+			incoming.User = self
+			globalRC.Broadcast(&incoming)
 		}
-		globalRC.Broadcast(&incoming)
 	}
 
 }
@@ -98,6 +99,30 @@ func debughandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func roomshandler(w http.ResponseWriter, r *http.Request) {
+	// Return a JSON object with information about all open rooms
+	w.Header().Set("Content-Type", "application/json")
+	rooomsJSON, err := json.Marshal(globalRC.Rooms)
+	if err != nil {
+		log.Println("Error serializing rooms")
+		log.Println(err)
+	} else {
+		w.Write(rooomsJSON)
+	}
+}
+
+func usershandler(w http.ResponseWriter, r *http.Request) {
+	// Return a JSON object with information about all connected users
+	w.Header().Set("Content-Type", "application/json")
+	usersJSON, err := json.Marshal(globalRC.Users)
+	if err != nil {
+		log.Println("Error serializing users")
+		log.Println(err)
+	} else {
+		w.Write(usersJSON)
+	}
+}
+
 func jsHandler(w http.ResponseWriter, r *http.Request) {
 	// Serve some static JS files
 	http.ServeFile(w, r, r.URL.Path[1:])
@@ -111,13 +136,13 @@ func init() {
 	}
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/debug", debughandler)
+	http.HandleFunc("/debug/rooms", roomshandler)
+	http.HandleFunc("/debug/users", usershandler)
 	http.Handle("/js/", http.FileServer(http.Dir(dir)))
 	http.HandleFunc("/sock", sockhandler)
 }
 
 func main() {
-	// Kick off just a single goroutine to
-	// act as a rebroadcaster for all messages
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())
