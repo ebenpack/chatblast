@@ -136,8 +136,8 @@ func init() {
 	}
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/debug", debughandler)
-	http.HandleFunc("/debug/rooms", roomshandler)
-	http.HandleFunc("/debug/users", usershandler)
+	http.HandleFunc("/rooms", roomshandler)
+	http.HandleFunc("/users", usershandler)
 	http.Handle("/js/", http.FileServer(http.Dir(dir)))
 	http.HandleFunc("/sock", sockhandler)
 }
