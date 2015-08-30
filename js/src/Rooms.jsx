@@ -2,20 +2,35 @@ var React = require('react');
 var Reflux = require('reflux');
 var Users = require('./Users.jsx');
 
-
-// "rooms": {
-//         "subscribed": {},
-//         "selected": ""
-//     },
-
-
 var Rooms = React.createClass({
     render: function(){
+        var rooms = this.props.rooms;
+        var currentRoom = this.props.currentRoom;
         return (
-            <div className={this.props.className + ' six columns'} >
-                {Object.keys(this.props.rooms).sort().map(function(room){
-                    return (<div key={room.id}>Room {room.id}</div>);
-                })}
+            <div className={this.props.className} >
+                <h4>Rooms</h4>
+                {
+                    Object.keys(rooms).
+                        sort(function(a, b){
+                            return rooms[a].name < rooms[b].name;
+                        }).map(function(rid){
+                            if (rid === currentRoom) {
+                                return (
+                                    <div>
+                                        <div key={rid}>{rooms[rid].name}</div>
+                                        <ul>{
+                                            Object.keys(rooms[rid].subscribers).
+                                                sort(function(a, b){
+                                                    return rooms[rid].subscribers[a].name < rooms[rid].subscribers[b].name;
+                                                }).map(function(uid){
+                                                    return <li>{rooms[rid].subscribers[uid].name}</li>
+                                                })
+                                        }</ul>
+                                    </div>
+                                );
+                            }
+                        })
+                }
             </div>
         );
     }

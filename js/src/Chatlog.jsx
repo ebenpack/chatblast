@@ -94,9 +94,10 @@ var Chatlog = React.createClass({
 
     },
   render: function() {
+    var contentEditable = this.props.readyState === 1 ? "true" : "false";
     return (
-        <div className={this.props.className + ' six columns'} >
-            <div className="textInput" contentEditable="true" onDragEnter={this.handleDragEnter} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyUp={this.handleKeyUp} onKeyDown={this.handleKeyDown} placeholder="Type a chatblast!" ref="msg">
+        <div className={this.props.className} >
+            <div className="textInput" contentEditable={contentEditable} onDragEnter={this.handleDragEnter} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyUp={this.handleKeyUp} onKeyDown={this.handleKeyDown} placeholder="Type a chatblast!" ref="msg">
             </div>
             <div className="messages">
                 {this.props.chatlog.map(function(chat){

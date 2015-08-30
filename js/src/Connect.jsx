@@ -12,7 +12,7 @@ var Connect = React.createClass({
   },
   render: function() {
     return (
-        <div className={this.props.className + ' twelve columns'}>
+        <div className={this.props.className}>
             <form onSubmit={this.handleSubmit}>
                 <input placeholder="Your name" ref="name" />
                 <input type="submit" value="Connect" />

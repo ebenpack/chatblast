@@ -4,8 +4,8 @@ var Actions = require('./Actions');
 var initialState = {
     "readyState": 0,
     "rooms": {},
-    "currentRoom":"global",
-    "users": [],
+    "currentRoom": "global",
+    "users": {},
     "self": {},
     "domain": ""
 };
@@ -45,14 +45,134 @@ module.exports = Reflux.createStore({
             //setTimeout(function(){connect(name)}, 1000);
         }
     },
-    onChatBlast: function(msg){
+    onChatBlast: function(msg) {
         msg = JSON.parse(msg);
         msg.rid = this.state.currentRoom;
         this.sock.send(JSON.stringify(msg));
         this.trigger(this.state);
     },
-    onSetReadyState: function(readyState){
+    onSetReadyState: function(readyState) {
         this.state.readyState = readyState;
+        this.trigger(this.state);
+    },
+    onSubscribe: function(chatblast) {
+        var room = chatblast.room;
+        this.state.rooms.forEach(function(current) {
+            current.selected = false;
+        });
+        this.state.rooms.push({
+            id: room,
+            chatlog: [],
+            selected: true,
+        });
+        if (!this.state.currentRoom) {
+            this.state.currentRoom = room;
+        }
+        this.trigger(this.state);
+    },
+    onUnsubscribe: function(chatblast) {
+        var room = chatblast.room;
+        var idx = -1;
+        for (var i = 0, len = this.state.rooms.length; i < len; i++) {
+            if (this.state.rooms[i].id === room) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx >= 0) {
+            this.state.rooms.splice(idx, 1);
+        }
+        this.trigger(this.state);
+    },
+    onSelectRoom: function(id) {
+        this.state.currentRoom = id;
+        this.trigger(this.state);
+    },
+    onGetRooms: function() {
+        var request = new XMLHttpRequest();
+        var self = this;
+        request.onreadystatechange = function() {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    try {
+                        var body = JSON.parse(request.responseText);
+                        for (var rid in body) {
+                            if (body.hasOwnProperty(rid)){
+                                Actions.addRoom(rid, body[rid]);
+                            }
+                        }
+                        self.trigger(self.state);
+                    } catch (e) {
+
+                    }
+                }
+            }
+        };
+        request.open('GET', '//' + self.state.domain + '/rooms', true);
+        request.send(null);
+    },
+    onGetUsers: function() {
+        var request = new XMLHttpRequest();
+        var self = this;
+        request.onreadystatechange = function() {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    try {
+                        var body = JSON.parse(request.responseText);
+                        for (var uid in body) {
+                            if (body.hasOwnProperty(uid)){
+                                Actions.addUser(uid, body[uid]);
+                            }
+                        }
+                        self.trigger(self.state);
+                    } catch (e) {
+
+                    }
+                }
+            }
+        };
+        request.open('GET', '//' + self.state.domain + '/users', true);
+        request.send(null);
+    },
+    onAddUser: function(uid, name) {
+        this.state.users[uid] = name;
+        this.trigger(this.state);
+    },
+    onAddRoom: function(rid, roomObj) {
+        this.state.rooms[rid] = {
+            chatlog: [],
+            name: roomObj.name,
+            subscribers: roomObj.subscribers ? roomObj.subscribers : {},
+        };
+        this.trigger(this.state);
+    },
+    onRemoveUser: function(user) {
+        var idx = -1;
+        for (var i = 0, len = this.state.users.length; i < len; i++) {
+            var currentUser = this.state.users[i];
+            if (currentUser.name === user.name) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx >= 0) {
+            this.state.users.splice(idx, 1);
+        }
+        this.trigger(this.state);
+    },
+    onAddChat: function(chat) {
+        var room = this.state.rooms[chat.rid];
+        if (room) {
+            room.chatlog.push(chat);
+
+            if (room.chatlog.length > 20) {
+                room.chatlog.shift();
+            }
+            this.trigger(this.state);
+        }
+    },
+    onSetDomain: function(domain) {
+        this.state.domain = domain;
         this.trigger(this.state);
     },
     onProcessMsg: function(msg) {
@@ -81,88 +201,4 @@ module.exports = Reflux.createStore({
 
         }
     },
-    onSubscribe: function(chatblast){
-        var room = chatblast.room;
-        this.state.rooms.forEach(function(current){
-            current.selected = false;
-        });
-        this.state.rooms.push({
-            id: room,
-            chatlog: [],
-            selected: true,
-        });
-        if (!this.state.currentRoom){
-            this.state.currentRoom = room;
-        }
-        this.trigger(this.state);
-    },
-    onUnsubscribe: function(chatblast){
-        var room = chatblast.room;
-        var idx = -1;
-        for (var i = 0, len = this.state.rooms.length; i < len; i++){
-            if (this.state.rooms[i].id === room){
-                idx = i;
-                break;
-            }
-        }
-        if (idx >= 0){
-            this.state.rooms.splice(idx, 1);
-        }
-        this.trigger(this.state);
-    },
-    onSelectRoom: function(id){
-        this.state.currentRoom = id;
-        this.trigger(this.state);
-    },
-    onGetUsers: function() {
-        var request = new XMLHttpRequest();
-        var self = this;
-        request.onreadystatechange = function() {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    try {
-                        self.state.users = JSON.parse(request.responseText).users;
-                        self.trigger(self.state);
-                    } catch (e) {
-
-                    }
-                }
-            }
-        };
-        request.open('GET', '//' + self.state.domain + '/users', true);
-        request.send(null);
-    },
-    onAddUser: function(user) {
-        this.state.users.push(user);
-        this.trigger(this.state);
-    },
-    onRemoveUser: function(user) {
-        var idx = -1;
-        for (var i = 0, len = this.state.users.length; i < len; i++) {
-            var currentUser = this.state.users[i];
-            if (currentUser.name === user.name) {
-                idx = i;
-                break;
-            }
-        }
-        if (idx >= 0) {
-            this.state.users.splice(idx, 1);
-        }
-        this.trigger(this.state);
-    },
-    onAddChat: function(chat) {
-        var room = this.state.rooms[chat.rid];
-        if (room) {
-            room.chatlog.push(chat);
-
-            if (room.chatlog.length > 20) {
-                room.chatlog.shift();
-            }
-            this.trigger(this.state);
-        }
-    },
-    onSetDomain: function(domain){
-        this.state.domain = domain;
-        this.trigger(this.state);
-    }
 });
