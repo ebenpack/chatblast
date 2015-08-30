@@ -80,7 +80,7 @@ func (r *Room) Join(u *User) {
 	r.SetSubscriber(u.Id, u)
 	msg := &Message{
 		Cmd:    "sub",
-		Text:   u.Name,
+		User:   u,
 		RoomId: r.Id,
 		UserId: u.Id,
 	}

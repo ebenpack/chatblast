@@ -128,8 +128,7 @@ func (rc *RoomController) AddUser(u *User) {
 	rc.SetUser(u.Id, u)
 	msg := &Message{
 		Cmd:    "login",
-		Text:	u.Name,
-		UserId: u.Id,
+		User: u,
 		RoomId: "global",
 	}
 	rc.SendGlobal(msg)
