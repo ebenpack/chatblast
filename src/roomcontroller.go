@@ -81,6 +81,12 @@ func (rc *RoomController) DeleteUser(userId string) {
 	delete(rc.Users, userId)
 }
 
+func (rc *RoomController) SendGlobal(msg *Message) {
+	if global, ok := rc.GetRoom("global"); ok {
+		global.Broadcast(msg)
+	}
+}
+
 func (rc *RoomController) AddRoom(name string, u *User) {
 	// TODO Only allow uniquely named rooms?
 	newRoom := NewRoom(name, u)
@@ -132,14 +138,12 @@ func (rc *RoomController) RemoveUser(u *User) {
 			rc.Unsubscribe(u, room.Id)
 		}
 	}
-	if global, ok := rc.GetRoom("global"); ok {
-		msg := &Message{
-			Cmd:    "logoff",
-			UserId: u.Id,
-			RoomId: "global",
-		}
-		global.Broadcast(msg)
+	msg := &Message{
+		Cmd:    "logoff",
+		UserId: u.Id,
+		RoomId: "global",
 	}
+	rc.SendGlobal(msg)
 	log.Println("User", u.Name, "removed from RoomController")
 }
 
