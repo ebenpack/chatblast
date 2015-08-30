@@ -3,11 +3,13 @@ package chatblast
 import (
 	"github.com/gorilla/websocket"
 	"log"
+	"time"
 )
 
 type User struct {
 	Name    string          `json:"name,omitempty"`
 	Id      string          `json:"id,omitempty"`
+	Connected int64		`json:"connected,omitempty"`
 	Channel chan *Message   `json:"-"`
 	Conn    *websocket.Conn `json:"-"`
 }
@@ -23,9 +25,11 @@ func (u *User) Tell(msg *Message) {
 }
 
 func NewUser(name string, conn *websocket.Conn) *User {
+	now := time.Now().Unix()
 	newUser := &User{
 		Name:    name,
 		Id:      GUID(),
+		Connected: now,
 		Channel: make(chan *Message),
 		Conn:    conn,
 	}
