@@ -2,7 +2,6 @@ var React = require('react');
 var Reflux = require('reflux');
 var Store = require('./Store');
 var Chatlog = require('./Chatlog.jsx');
-var Connect = require('./Connect.jsx');
 var Rooms = require('./Rooms.jsx');
 var Users = require('./Users.jsx');
 var Commands = require('./Commands.jsx');

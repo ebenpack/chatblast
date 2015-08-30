@@ -132,6 +132,14 @@ func (rc *RoomController) RemoveUser(u *User) {
 			rc.Unsubscribe(u, room.Id)
 		}
 	}
+	if global, ok := rc.GetRoom("global"); ok {
+		msg := &Message{
+			Cmd:    "logoff",
+			UserId: u.Id,
+			RoomId: "global",
+		}
+		global.Broadcast(msg)
+	}
 	log.Println("User", u.Name, "removed from RoomController")
 }
 
