@@ -9,9 +9,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Instantiate global roomcontroller
