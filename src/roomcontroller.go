@@ -126,6 +126,13 @@ func (rc *RoomController) RemoveRoom(rid string, u *User) {
 func (rc *RoomController) AddUser(u *User) {
 	log.Println("New user", u.Name, "added to RoomController")
 	rc.SetUser(u.Id, u)
+	msg := &Message{
+		Cmd:    "login",
+		Text:	u.Name,
+		UserId: u.Id,
+		RoomId: "global",
+	}
+	rc.SendGlobal(msg)
 	rc.Subscribe(u, "global")
 }
 

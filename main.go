@@ -46,8 +46,14 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Make user and add them to globalRoom
-	self := chatblast.NewUser(name, conn)
+	// Make user, kick off channel listener,
+	// and add them to globalRoom
+	self := chatblast.NewUser(name)
+	go func (u *chatblast.User, conn *websocket.Conn) {
+		for incoming := range u.Channel {
+			conn.WriteJSON(incoming)
+		}
+	}(self, conn)
 	globalRC.AddUser(self)
 
 	// Register some teardown

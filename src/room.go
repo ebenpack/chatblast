@@ -79,7 +79,7 @@ func (r *Room) Join(u *User) {
 	// TODO Add re-join check
 	r.SetSubscriber(u.Id, u)
 	msg := &Message{
-		Cmd:    "join",
+		Cmd:    "sub",
 		Text:   u.Name,
 		RoomId: r.Id,
 		UserId: u.Id,
@@ -92,7 +92,7 @@ func (r *Room) Leave(u *User) {
 	// aren't subscribed to)
 	r.RemoveSubscriber(u.Id)
 	msg := &Message{
-		Cmd:    "leave",
+		Cmd:    "unsub",
 		RoomId: r.Id,
 		UserId: u.Id,
 	}
