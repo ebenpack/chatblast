@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 	"path/filepath"
 	"strings"
 )
@@ -81,6 +82,7 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			incoming.UserId = self.Id
 			incoming.User = self
+			incoming.Time = time.Now().Unix()
 			globalRC.Broadcast(&incoming)
 		}
 	}
