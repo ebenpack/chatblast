@@ -18,6 +18,8 @@ module.exports = Reflux.createStore({
     },
     onConnect: function(name) {
         var nameQS = name ? ('?name=' + name) : '';
+        Actions.getRooms();
+        Actions.getUsers();
         var sock = new WebSocket("ws://" + this.state.domain + "/sock" + nameQS);
         this.sock = sock;
         try {
@@ -40,6 +42,7 @@ module.exports = Reflux.createStore({
                 console.log("Disconnected - status " + self.state.readyState);
                 //setTimeout(function(){connect(name)}, 1000);
             };
+
         } catch (exception) {
             console.log(exception);
             //setTimeout(function(){connect(name)}, 1000);
@@ -55,33 +58,12 @@ module.exports = Reflux.createStore({
         this.state.readyState = readyState;
         this.trigger(this.state);
     },
-    onSubscribe: function(chatblast) {
-        var room = chatblast.room;
-        this.state.rooms.forEach(function(current) {
-            current.selected = false;
-        });
-        this.state.rooms.push({
-            id: room,
-            chatlog: [],
-            selected: true,
-        });
-        if (!this.state.currentRoom) {
-            this.state.currentRoom = room;
-        }
+    onSubscribe: function(rid, user){
+        this.state.rooms[rid].subscribers[user.id] = user;
         this.trigger(this.state);
     },
     onUnsubscribe: function(chatblast) {
-        var room = chatblast.room;
-        var idx = -1;
-        for (var i = 0, len = this.state.rooms.length; i < len; i++) {
-            if (this.state.rooms[i].id === room) {
-                idx = i;
-                break;
-            }
-        }
-        if (idx >= 0) {
-            this.state.rooms.splice(idx, 1);
-        }
+        delete this.state.rooms[chatblast.rid].subscribers[chatblast.uid];
         this.trigger(this.state);
     },
     onSelectRoom: function(id) {
@@ -96,6 +78,7 @@ module.exports = Reflux.createStore({
                 if (request.status === 200) {
                     try {
                         var body = JSON.parse(request.responseText);
+                        self.state.rooms = {};
                         for (var rid in body) {
                             if (body.hasOwnProperty(rid)){
                                 Actions.addRoom(rid, body[rid]);
@@ -119,6 +102,7 @@ module.exports = Reflux.createStore({
                 if (request.status === 200) {
                     try {
                         var body = JSON.parse(request.responseText);
+                        self.state.users = {};
                         for (var uid in body) {
                             if (body.hasOwnProperty(uid)){
                                 Actions.addUser(uid, body[uid]);
@@ -134,31 +118,23 @@ module.exports = Reflux.createStore({
         request.open('GET', '//' + self.state.domain + '/users', true);
         request.send(null);
     },
-    onAddUser: function(uid, name) {
-        this.state.users[uid] = name;
+    onAddUser: function(uid, user) {
+        this.state.users[uid] = user;
+        this.trigger(this.state);
+    },
+    onRemoveUser: function(uid) {
+        delete this.state.users[uid];
         this.trigger(this.state);
     },
     onAddRoom: function(rid, roomObj) {
-        this.state.rooms[rid] = {
-            chatlog: [],
-            name: roomObj.name,
-            subscribers: roomObj.subscribers ? roomObj.subscribers : {},
-        };
-        this.trigger(this.state);
-    },
-    onRemoveUser: function(user) {
-        var idx = -1;
-        for (var i = 0, len = this.state.users.length; i < len; i++) {
-            var currentUser = this.state.users[i];
-            if (currentUser.name === user.name) {
-                idx = i;
-                break;
-            }
+        if (!this.state.rooms.hasOwnProperty(rid)){
+            this.state.rooms[rid] = {
+                chatlog: [],
+                name: roomObj.name,
+                subscribers: roomObj.subscribers ? roomObj.subscribers : {},
+            };
+            this.trigger(this.state);
         }
-        if (idx >= 0) {
-            this.state.users.splice(idx, 1);
-        }
-        this.trigger(this.state);
     },
     onAddChat: function(chat) {
         var room = this.state.rooms[chat.rid];
@@ -180,16 +156,16 @@ module.exports = Reflux.createStore({
             var chatblast = JSON.parse(msg);
             switch (chatblast.cmd) {
                 case "login":
-                    Actions.addUser(chatblast.user);
+                    Actions.addUser(chatblast.user.id, chatblast.user);
                     break;
                 case "logoff":
-                    Actions.removeUser(chatblast.user);
+                    Actions.removeUser(chatblast.uid);
                     break;
                 case "msg":
                     Actions.addChat(chatblast);
                     break;
                 case "sub":
-                    Actions.subscribe(chatblast);
+                    Actions.subscribe(chatblast.rid, chatblast.user);
                     break;
                 case "unsub":
                     Actions.unsubscribe(chatblast);
