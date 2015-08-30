@@ -18,6 +18,8 @@ module.exports = Reflux.createStore({
     },
     onConnect: function(name) {
         var nameQS = name ? ('?name=' + name) : '';
+        this.state.rooms = {};
+        this.state.users = {};
         Actions.getRooms();
         Actions.getUsers();
         var sock = new WebSocket("ws://" + this.state.domain + "/sock" + nameQS);
@@ -78,7 +80,6 @@ module.exports = Reflux.createStore({
                 if (request.status === 200) {
                     try {
                         var body = JSON.parse(request.responseText);
-                        self.state.rooms = {};
                         for (var rid in body) {
                             if (body.hasOwnProperty(rid)){
                                 Actions.addRoom(rid, body[rid]);
@@ -102,7 +103,6 @@ module.exports = Reflux.createStore({
                 if (request.status === 200) {
                     try {
                         var body = JSON.parse(request.responseText);
-                        self.state.users = {};
                         for (var uid in body) {
                             if (body.hasOwnProperty(uid)){
                                 Actions.addUser(uid, body[uid]);

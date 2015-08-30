@@ -7,7 +7,7 @@ var Chat = React.createClass({
             dateString = util.convertFromEpoch(chat.time),
             output = false;
 
-        var serializedChat = chat.msg.map(function(curr, idx){
+        var serializedChat = chat.data.map(function(curr, idx){
             var output = false;
             if (curr.name === "text"){
                 output = (<span key={idx} >{curr.value}</span>);
