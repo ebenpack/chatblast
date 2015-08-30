@@ -16,7 +16,7 @@ var Rooms = React.createClass({
                         }).map(function(rid){
                             if (rid === currentRoom) {
                                 return (
-                                    <div>
+                                    <div className="room">
                                         <div key={rid}>{rooms[rid].name}</div>
                                         <ul>{
                                             Object.keys(rooms[rid].subscribers).

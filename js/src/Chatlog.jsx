@@ -60,9 +60,11 @@ var Chatlog = React.createClass({
     componentWillUpdate: function() {
         var node = React.findDOMNode(this.refs.log);
         this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
+        this.maxHeight = {maxHeight: (this.getMaxHeight() - 10) + 'px'};
     },
 
     componentDidUpdate: function() {
+
         if (this.shouldScrollBottom) {
             var node = React.findDOMNode(this.refs.log);
             node.scrollTop = node.scrollHeight;
@@ -117,18 +119,13 @@ var Chatlog = React.createClass({
 
     },
     render: function() {
-        var maxHeight = this.getMaxHeight();
-        if (maxHeight) {
-            maxHeight = {"max-height": maxHeight + "px"};
-        } else {
-            maxHeight = {};
-        }
+        
         var contentEditable = this.props.readyState === 1 ? "true" : "false";
         return (
             <div className={this.props.className} >
                 <div className="textInput" contentEditable={contentEditable} onDragEnter={this.handleDragEnter} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyUp={this.handleKeyUp} onKeyDown={this.handleKeyDown} placeholder="Type a chatblast!" ref="msg">
                 </div>
-                <div className="messages" ref="log" style={maxHeight}>
+                <div className="messages" ref="log" style={this.maxHeight}>
                     {this.props.chatlog.map(function(chat){
                         return (<Chat key={chat.time} chat={chat} />);
                     })}

@@ -20,14 +20,17 @@ var Chatblast = React.createClass({
         var store = this.state;
         var connectClass = 'connect',
             chatClass = 'chat',
-            roomClass = 'user';
+            roomClass = 'rooms',
+            userClass = 'users';
         if (store.readyState === 0) {
             connectClass += " focus";
             chatClass += " blur";
             roomClass += " blur";
+            userClass += " blur";
         } else if (store.readyState === 1) {
             chatClass += " focus";
             roomClass += " focus";
+            userClass += " blur";
             connectClass += " blur";
         }
         var rooms = store.rooms;
@@ -41,7 +44,7 @@ var Chatblast = React.createClass({
                 </div>
                 <div className="right six columns">
                     <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom}  />
-                    <Users className={roomClass} readyState={store.readyState} users={users} currentRoom={currentRoom}  />
+                    <Users className={userClass} readyState={store.readyState} users={users} currentRoom={currentRoom}  />
                     <Commands className={connectClass} readyState={store.readyState} />
                 </div>
             </div>
