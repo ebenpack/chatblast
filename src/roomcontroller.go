@@ -238,6 +238,8 @@ func (rc *RoomController) Dispatch(incoming *Message) {
 		//		TODO add whispers
 	default:
 		if room, ok := rc.GetRoom(incoming.RoomId); ok {
+			// Remove user info to reduce payload size
+			incoming.User = nil
 			room.Broadcast(incoming)
 		}
 	}
