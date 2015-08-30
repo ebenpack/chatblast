@@ -6,10 +6,10 @@ import (
 )
 
 type User struct {
-	Name      string          `json:"name,omitempty"`
-	Id        string          `json:"id,omitempty"`
-	Connected int64           `json:"connected,omitempty"`
-	Channel   chan *Message   `json:"-"`
+	Name      string        `json:"name,omitempty"`
+	Id        string        `json:"id,omitempty"`
+	Connected int64         `json:"connected,omitempty"`
+	Channel   chan *Message `json:"-"`
 }
 
 func (u *User) Tell(msg *Message) {
