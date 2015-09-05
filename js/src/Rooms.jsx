@@ -1,36 +1,50 @@
 var React = require('react');
-var Reflux = require('reflux');
-var Users = require('./Users.jsx');
+var Actions = require('./Actions');
+var Room = require('./Room.jsx');
 
 var Rooms = React.createClass({
+    getInitialState: function(){
+        return {
+            addOpen: false,
+        };
+    },
+    handleAddClick: function(e){
+        if (this.props.readyState === 1) {
+            this.setState({addOpen: !this.state.addOpen});
+        }
+    },
+    handleRemoveClick: function(e){
+        var rid = e.target;
+
+    },
+    handleInputKeyUp: function(e){
+        if (e.key === "Enter"){
+            var name = e.target.value;
+            e.target.value = "";
+            this.addRoom(name);
+        }
+    },
+    addRoom: function(name){
+        Actions.newRoom(name);
+    },
     render: function(){
         var rooms = this.props.rooms;
         var currentRoom = this.props.currentRoom;
+        var addOpen = this.state.addOpen ? '-' : '+';
         return (
             <div className={this.props.className} >
                 <h4>Rooms</h4>
-                {
-                    Object.keys(rooms).
+                <div className="roomList">
+                    {Object.keys(rooms).
                         sort(function(a, b){
-                            return rooms[a].name < rooms[b].name;
+                            return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
                         }).map(function(rid){
-                            if (rid === currentRoom) {
-                                return (
-                                    <div className="room">
-                                        <div key={rid}>{rooms[rid].name}</div>
-                                        <ul>{
-                                            Object.keys(rooms[rid].subscribers).
-                                                sort(function(a, b){
-                                                    return rooms[rid].subscribers[a].name < rooms[rid].subscribers[b].name;
-                                                }).map(function(uid){
-                                                    return <li>{rooms[rid].subscribers[uid].name}</li>
-                                                })
-                                        }</ul>
-                                    </div>
-                                );
-                            }
+                            return <Room currentRoom={currentRoom} room={rooms[rid]} rid={rid} />
                         })
-                }
+                    }
+                </div>
+                <div onClick={this.handleAddClick}>{addOpen} Add room</div>
+                {this.state.addOpen ? <input onKeyUp={this.handleInputKeyUp}    type="text" placeholder="Room Name" /> : ""}
             </div>
         );
     }
