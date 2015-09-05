@@ -62,9 +62,7 @@ var Chatlog = React.createClass({
         this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
         this.maxHeight = {maxHeight: (this.getMaxHeight() - 10) + 'px'};
     },
-
     componentDidUpdate: function() {
-
         if (this.shouldScrollBottom) {
             var node = React.findDOMNode(this.refs.log);
             node.scrollTop = node.scrollHeight;
@@ -102,10 +100,10 @@ var Chatlog = React.createClass({
         chatBox.normalize();
         var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
         if (msg.length !== 0) {
-            Actions.chatBlast(JSON.stringify({
+            Actions.chatBlast({
                 "cmd": "msg",
                 "data": msg
-            }));
+            });
             chatBox.textContent = '';
         }
     },
@@ -119,7 +117,6 @@ var Chatlog = React.createClass({
 
     },
     render: function() {
-        
         var contentEditable = this.props.readyState === 1 ? "true" : "false";
         return (
             <div className={this.props.className} >
