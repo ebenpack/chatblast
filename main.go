@@ -4,6 +4,7 @@ package main
 import (
 	"./src"
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/websocket"
 	"html/template"
 	"log"
@@ -110,12 +111,25 @@ func debughandler(w http.ResponseWriter, r *http.Request) {
 func roomshandler(w http.ResponseWriter, r *http.Request) {
 	// Return a JSON object with information about all open rooms
 	w.Header().Set("Content-Type", "application/json")
-	rooomsJSON, err := json.Marshal(globalRC.Rooms)
-	if err != nil {
-		log.Println("Error serializing rooms")
-		log.Println(err)
+	var roomsJSON []byte
+	var err error
+	path := strings.Split(r.URL.Path, "/")[1:]
+	log.Println(path)
+	if r.URL.Path == "/rooms/" {
+		roomsJSON, err = json.Marshal(globalRC.Rooms)
+	} else if log.Println(len(path)); len(path) == 2 {
+		if room, ok := globalRC.GetRoom(path[1]); ok {
+			roomsJSON, err = json.Marshal(room)
+		} else {
+			err = errors.New("Room not found")
+		}
 	} else {
-		w.Write(rooomsJSON)
+		err = errors.New("Path not found")
+	}
+	if err != nil {
+		http.NotFound(w, r)
+	} else {
+		w.Write(roomsJSON)
 	}
 }
 
@@ -144,8 +158,8 @@ func init() {
 	}
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/debug", debughandler)
-	http.HandleFunc("/rooms", roomshandler)
-	http.HandleFunc("/users", usershandler)
+	http.HandleFunc("/rooms/", roomshandler)
+	http.HandleFunc("/users/", usershandler)
 	http.Handle("/js/", http.FileServer(http.Dir(dir)))
 	http.HandleFunc("/sock", sockhandler)
 }
