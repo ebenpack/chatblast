@@ -24,8 +24,17 @@
         .blur {
             opacity: 0.7;
         }
-        .room:nth-child(odd) {
+        .room {
+            border-top: 1px dashed gray;
+        }
+        .room:last-child {
+            border-bottom: 1px dashed gray;
+        }
+        .room.selected {
             background-color: white;
+        }
+        .room ul {
+            margin-bottom: 0;
         }
         .room li {
             list-style-type: square;
