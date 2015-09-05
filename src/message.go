@@ -13,4 +13,5 @@ type Message struct {
 	RoomId string        `json:"rid,omitempty"`
 	UserId string        `json:"uid,omitempty"`
 	User   *User         `json:"user,omitempty"`
+	Room   *Room         `json:"room,omitempty"`
 }
