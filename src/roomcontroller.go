@@ -91,16 +91,13 @@ func (rc *RoomController) AddRoom(name string, u *User) {
 	// TODO Only allow uniquely named rooms?
 	newRoom := NewRoom(name, u)
 	rc.SetRoom(newRoom.Id, newRoom)
-	rc.Subscribe(u, newRoom.Id)
 	msg := &Message{
 		RoomId: "global",
 		Cmd:    "newrm",
-		Msg: []messageData{
-			{Name: "rid", Value: newRoom.Id},
-			{Name: "name", Value: name},
-		},
+		Room:   newRoom,
 	}
 	rc.Dispatch(msg)
+	rc.Subscribe(u, newRoom.Id)
 	log.Println("New room", name, "created")
 }
 
