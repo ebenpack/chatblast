@@ -26,6 +26,7 @@
         }
         .room {
             border-top: 1px dashed gray;
+            background-color: aliceblue;
         }
         .room:last-child {
             border-bottom: 1px dashed gray;
@@ -33,9 +34,9 @@
         .room.selected {
             background-color: white;
         }
-        .room.myRoom {
+        /*.room.myRoom {
             background-color: yellow;
-        }
+        }*/
         .room ul {
             margin-bottom: 0;
         }
@@ -43,6 +44,18 @@
             list-style-type: square;
             margin-left: .05em;
             margin-bottom: 0;
+        }
+        @-webkit-keyframes pulse {
+            0% {background-color: #FFF;}
+            100% {background-color: #FF9A9F;}
+        }
+        keyframes pulse {
+            0% {background-color: #FFF;}
+            100% {background-color: #FF9A9F;}
+        }
+        .unread {
+            -webkit-animation: pulse 5s infinite alternate;
+            animation: pulse 5s infinite alternate;
         }
         .textInput {
             white-space: pre;
