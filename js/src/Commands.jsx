@@ -7,12 +7,16 @@ var Connect = require('./Connect.jsx');
 
 var Chatblast = React.createClass({
     render: function() {
-        return (
-            <div>
-                <Connect className={this.props.connectClass} readyState={this.props.readyState} />
-            </div>
-            
-        );
+        if (this.props.readyState !== 1) {
+            return (
+                <div>
+                    <Connect className={this.props.connectClass} readyState={this.props.readyState} />
+                </div>
+                
+            );
+        } else {
+            return (<div></div>);
+        }
   }
 });
 
