@@ -97,6 +97,7 @@ func (r *Room) Leave(u *User) {
 		UserId: u.Id,
 	}
 	r.Broadcast(msg)
+	u.Tell(msg)
 }
 
 func (r *Room) CloseRoom(u *User) (closed bool, err error) {
