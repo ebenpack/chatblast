@@ -108,6 +108,11 @@ func (rc *RoomController) RemoveRoom(rid string, u *User) {
 			log.Println("Uh oh!")
 		} else if closed {
 			rc.DeleteRoom(rid)
+			msg := &Message{
+				Cmd:    "closing",
+				RoomId: rid,
+			}
+			rc.SendGlobal(msg)
 			log.Println("Room", room.Name, "deleted")
 		} else {
 			msg := &Message{
@@ -180,26 +185,6 @@ func (rc *RoomController) Broadcast(msg *Message) {
 	// TODO Message dispatch
 	rc.Channel <- msg
 }
-
-//func (rc *RoomController) GetUsers(roomId string) []*User {
-//	var userArray []*User
-//	if room, ok := rc.GetRoom(roomId); ok {
-//		for _, user := range room.Subscribers {
-//			userArray = append(userArray, user)
-//		}
-//	}
-//	return userArray
-//}
-
-//func (rc *RoomController) GetRooms(roomId string) []*Room {
-//	var userArray []*User
-//	if room, ok := rc.GetRoom(roomId); ok {
-//		for _, user := range room.Subscribers {
-//			userArray = append(userArray, user)
-//		}
-//	}
-//	return userArray
-//}
 
 func (rc *RoomController) Dispatch(incoming *Message) {
 	switch incoming.Cmd {

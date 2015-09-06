@@ -104,11 +104,6 @@ func (r *Room) CloseRoom(u *User) (closed bool, err error) {
 	err = nil
 	if r.Owner != nil && u.Id == r.Owner.Id {
 		closed = true
-		msg := &Message{
-			Cmd:    "closing",
-			RoomId: r.Id,
-		}
-		r.Broadcast(msg)
 	}
 	return closed, err
 
