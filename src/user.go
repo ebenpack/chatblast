@@ -37,6 +37,11 @@ func NewUser(name string, conn Connection) *User {
 		Conn: conn,
 	}
 	go newUser.Listen()
+	msg := &Message{
+		Cmd: "welcome",
+		User: newUser,
+	}
+	newUser.Tell(msg)
 	log.Println("New user", name, "created")
 	return newUser
 }
