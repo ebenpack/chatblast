@@ -9,6 +9,7 @@ module.exports = Reflux.createActions([
     'addRoom',
     'newRoom',
     'joinRoom',
+    'leaveRoom',
     'switchRooms',
     'removeRoom',
     'removeUser',
