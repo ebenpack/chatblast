@@ -35,6 +35,7 @@ var Chatblast = React.createClass({
         }
         var rooms = store.rooms;
         var users = store.users;
+        var self = store.self;
         var currentRoom = store.currentRoom;
         var chatlog = rooms[currentRoom] ? rooms[currentRoom].chatlog : [];
         return (
@@ -43,7 +44,7 @@ var Chatblast = React.createClass({
                     <Chatlog className={chatClass} chatlog={chatlog} readyState={store.readyState} />
                 </div>
                 <div className="right six columns">
-                    <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom}  />
+                    <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom} self={self}  />
                     <Users className={userClass} readyState={store.readyState} users={users} currentRoom={currentRoom}  />
                     <Commands className={connectClass} readyState={store.readyState} />
                 </div>
