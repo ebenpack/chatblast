@@ -6,7 +6,7 @@ var initialState = {
     "rooms": {},
     "currentRoom": "global",
     "users": {},
-    "self": {},
+    "self": {id: null},
     "domain": ""
 };
 
@@ -54,19 +54,19 @@ module.exports = Reflux.createStore({
     },
     onSetReadyState: function(readyState) {
         this.state.readyState = readyState;
-        this.trigger(this.state);
+        this.trigger({readyState: this.state.readyState});
     },
     onSubscribe: function(rid, user){
         this.state.rooms[rid].subscribers[user.id] = user;
-        this.trigger(this.state);
+        this.trigger({rooms: this.state.rooms});
     },
     onUnsubscribe: function(chatblast) {
         delete this.state.rooms[chatblast.rid].subscribers[chatblast.uid];
-        this.trigger(this.state);
+        this.trigger({rooms: this.state.rooms});
     },
     onSelectRoom: function(id) {
         this.state.currentRoom = id;
-        this.trigger(this.state);
+        this.trigger({currentRoom: this.state.currentRoom});
     },
     onGetRooms: function() {
         var request = new XMLHttpRequest();
@@ -81,14 +81,13 @@ module.exports = Reflux.createStore({
                                 Actions.addRoom(rid, body[rid]);
                             }
                         }
-                        self.trigger(self.state);
                     } catch (e) {
                         console.log(e);
                     }
                 }
             }
         };
-        request.open('GET', '//' + self.state.domain + '/rooms', true);
+        request.open('GET', '//' + self.state.domain + '/rooms/', true);
         request.send(null);
     },
     onGetUsers: function() {
@@ -104,23 +103,26 @@ module.exports = Reflux.createStore({
                                 Actions.addUser(uid, body[uid]);
                             }
                         }
-                        self.trigger(self.state);
                     } catch (e) {
 
                     }
                 }
             }
         };
-        request.open('GET', '//' + self.state.domain + '/users', true);
+        request.open('GET', '//' + self.state.domain + '/users/', true);
         request.send(null);
     },
     onAddUser: function(uid, user) {
         this.state.users[uid] = user;
-        this.trigger(this.state);
+        this.trigger({users: this.state.users});
+    },
+    onAddSelf: function(user) {
+        this.state.self = user;
+        this.trigger({self: this.state.self});
     },
     onRemoveUser: function(uid) {
         delete this.state.users[uid];
-        this.trigger(this.state);
+        this.trigger({users: this.state.users});
     },
     onNewRoom: function(name) {
         this.sock.send(JSON.stringify({
@@ -128,22 +130,34 @@ module.exports = Reflux.createStore({
             "txt": name,
         }));
     },
+    onJoinRoom: function(rid){
+        this.sock.send(JSON.stringify({
+            "cmd": "sub",
+            "rid": rid,
+        }));
+    },
     onAddRoom: function(rid, roomObj) {
         if (!this.state.rooms.hasOwnProperty(rid)){
             this.state.rooms[rid] = {
                 chatlog: [],
                 name: roomObj.name,
+                id: roomObj.id,
                 subscribers: roomObj.subscribers ? roomObj.subscribers : {},
                 owner: roomObj.owner ? roomObj.owner : "",
             };
         }
-        this.trigger(this.state);
+        this.trigger({rooms: this.state.rooms});
+    },
+    onRemoveRoom: function(rid){
+        if (this.state.rooms.hasOwnProperty(rid)){
+            delete this.state.rooms[rid];
+        }
     },
     onSwitchRooms: function(rid) {
         if (this.state.rooms.hasOwnProperty(rid)){
             this.state.currentRoom = rid;
         }
-        this.trigger(this.state);
+        this.trigger({currentRoom: this.state.currentRoom});
     },
     onAddChat: function(chat) {
         var room = this.state.rooms[chat.rid];
@@ -153,12 +167,12 @@ module.exports = Reflux.createStore({
             if (room.chatlog.length > 20) {
                 room.chatlog.shift();
             }
-            this.trigger(this.state);
+            this.trigger({rooms: this.state.rooms});
         }
     },
     onSetDomain: function(domain) {
         this.state.domain = domain;
-        this.trigger(this.state);
+        this.trigger({domain: this.state.domain});
     },
     onProcessMsg: function(msg) {
         try {
@@ -169,6 +183,9 @@ module.exports = Reflux.createStore({
                     break;
                 case "logoff":
                     Actions.removeUser(chatblast.uid);
+                    break;
+                case "welcome":
+                    Actions.addSelf(chatblast.user);
                     break;
                 case "msg":
                     Actions.addChat(chatblast);
@@ -181,6 +198,9 @@ module.exports = Reflux.createStore({
                     break;
                 case "newrm":
                     Actions.addRoom(chatblast.room.id, chatblast.room);
+                    break;
+                case "closing":
+                    Actions.removeRoom(chatblast.rid);
                     break;
             }
         } catch (e) {
