@@ -22,6 +22,7 @@ var Rooms = React.createClass({
             var name = e.target.value;
             e.target.value = "";
             this.addRoom(name);
+            this.setState({addOpen: false});
         }
     },
     addRoom: function(name){
@@ -29,6 +30,7 @@ var Rooms = React.createClass({
     },
     render: function(){
         var rooms = this.props.rooms;
+        var self = this.props.self;
         var currentRoom = this.props.currentRoom;
         var addOpen = this.state.addOpen ? '-' : '+';
         return (
@@ -39,7 +41,7 @@ var Rooms = React.createClass({
                         sort(function(a, b){
                             return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
                         }).map(function(rid){
-                            return <Room currentRoom={currentRoom} room={rooms[rid]} rid={rid} />
+                            return (<Room currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
                         })
                     }
                 </div>
