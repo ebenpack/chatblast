@@ -48,14 +48,8 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Make user, kick off channel listener,
-	// and add them to globalRoom
-	self := chatblast.NewUser(name)
-	go func(u *chatblast.User, conn *websocket.Conn) {
-		for incoming := range u.Channel {
-			conn.WriteJSON(incoming)
-		}
-	}(self, conn)
+	// Make user and add them to globalRoom
+	self := chatblast.NewUser(name, conn)
 	globalRC.AddUser(self)
 
 	// Register some teardown
@@ -113,8 +107,8 @@ func roomshandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var roomsJSON []byte
 	var err error
+	// There's a leading slash, so strip out the first (empty) item
 	path := strings.Split(r.URL.Path, "/")[1:]
-	log.Println(path)
 	if r.URL.Path == "/rooms/" {
 		roomsJSON, err = json.Marshal(globalRC.Rooms)
 	} else if log.Println(len(path)); len(path) == 2 {
