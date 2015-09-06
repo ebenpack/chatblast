@@ -136,6 +136,16 @@ module.exports = Reflux.createStore({
             "rid": rid,
         }));
     },
+    onLeaveRoom: function(rid){
+        this.sock.send(JSON.stringify({
+            "cmd": "unsub",
+            "rid": rid,
+        }));
+        if (this.state.currentRoom === rid){
+            this.state.currentRoom = "global";
+            this.trigger({currentRoom: this.state.currentRoom});
+        }
+    },
     onAddRoom: function(rid, roomObj) {
         if (!this.state.rooms.hasOwnProperty(rid)){
             this.state.rooms[rid] = {

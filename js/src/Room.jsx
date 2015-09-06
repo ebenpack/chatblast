@@ -18,6 +18,9 @@ var Room = React.createClass({
         Actions.joinRoom(this.props.room.id);
         Actions.switchRooms(this.props.room.id);
     },
+    handleLeaveClick: function(e){
+        Actions.leaveRoom(this.props.room.id);
+    },
     updateReadCount: function(currentRoom, chats){
         var oldRead = this.state.read;
         var oldUnread = this.state.unread;
@@ -40,14 +43,21 @@ var Room = React.createClass({
         var self = this.props.self;
         var myId = self.id;
         var roomClass = "room ";
+        var roomText = room.name;
+        var myRoom = false;
         if (room.owner.id && myId === room.owner.id) {
+            myRoom = true;
             roomClass += "myRoom ";
         }
         if (rid === currentRoom) {
             roomClass += "selected";
+            var leaveRoom = "";
+            if (!myRoom) {
+                leaveRoom = <span onClick={this.handleLeaveClick}> Leave room</span>;
+            }
             return (
                 <div className={roomClass}>
-                    <div>{room.name}</div>
+                    <div>{roomText}{leaveRoom}</div>
                     <ul>{
                         Object.keys(room.subscribers).
                             sort(function(a, b){
@@ -58,8 +68,7 @@ var Room = React.createClass({
                     }</ul>
                 </div>
             );
-        } else if (room.subscribers.hasOwnProperty(myId)) {
-            var roomText = room.name;
+        } else if (room.subscribers.hasOwnProperty(myId)) {      
             var unread = this.state.unread;
             if (unread > 0){
                 roomText += " - " + unread + " unread";
@@ -71,9 +80,10 @@ var Room = React.createClass({
                 </div>
             );
         } else {
+            roomText += " - Join";
             return (
                 <div className={roomClass}>
-                    <div onClick={this.handleJoinClick}>{room.name} - Click to join</div>
+                    <div onClick={this.handleJoinClick}>{roomText}</div>
                 </div>
             );
         }
