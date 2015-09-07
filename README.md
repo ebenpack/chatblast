@@ -1,11 +1,15 @@
 # chatblast
 
-A fairly straightforward realtime-ish chat thingy, using websockets, go, and react.
+A fairly straightforward ephemeral realtime-ish chat thingy, using websockets, go, and react.
 
-Currently supports in-message images via drag'n'drop. Will possibly support other things in the future, as they are conceived of.
+Currently supports:
+
+* In-message images via drag'n'drop
+* Multiple rooms
+
+Will possibly support other things in the future, as they are conceived of and implemented.
 
 ## Installing / setup
-
 
 1. `git clone https://github.com/ebenpack/chatblast.git`
 2. `go get github.com/gorilla/websocket`
