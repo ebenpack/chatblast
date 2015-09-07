@@ -18,6 +18,16 @@ module.exports = Reflux.createStore({
         this.state = initialState;
         return this.state;
     },
+    switchCurrentRoom: function() {
+        if (this.state.rooms.global.subscribers.hasOwnProperty(this.state.self.id)) {
+            this.state.currentRoom = "global";
+        } else {
+            this.state.currentRoom = "";
+        }
+        this.trigger({
+            currentRoom: this.state.currentRoom
+        });
+    },
     onConnect: function(name) {
         var nameQS = name ? ('?name=' + name) : '';
         this.state.rooms = {};
@@ -68,6 +78,9 @@ module.exports = Reflux.createStore({
     },
     onUnsubscribe: function(chatblast) {
         delete this.state.rooms[chatblast.rid].subscribers[chatblast.uid];
+        if (this.state.currentRoom === chatblast.rid) {
+            this.switchCurrentRoom();
+        }
         this.trigger({
             rooms: this.state.rooms
         });
@@ -157,12 +170,6 @@ module.exports = Reflux.createStore({
             "cmd": "unsub",
             "rid": rid,
         }));
-        if (this.state.currentRoom === rid) {
-            this.state.currentRoom = "global";
-            this.trigger({
-                currentRoom: this.state.currentRoom
-            });
-        }
     },
     onAddRoom: function(rid, roomObj) {
         if (!this.state.rooms.hasOwnProperty(rid)) {
@@ -181,6 +188,9 @@ module.exports = Reflux.createStore({
     onRemoveRoom: function(rid) {
         if (this.state.rooms.hasOwnProperty(rid)) {
             delete this.state.rooms[rid];
+            if (this.state.currentRoom === rid) {
+                this.switchCurrentRoom();
+            }
             this.trigger({
                 rooms: this.state.rooms
             });
