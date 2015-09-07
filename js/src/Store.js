@@ -6,7 +6,9 @@ var initialState = {
     "rooms": {},
     "currentRoom": "global",
     "users": {},
-    "self": {id: null},
+    "self": {
+        id: null
+    },
     "domain": ""
 };
 
@@ -54,19 +56,27 @@ module.exports = Reflux.createStore({
     },
     onSetReadyState: function(readyState) {
         this.state.readyState = readyState;
-        this.trigger({readyState: this.state.readyState});
+        this.trigger({
+            readyState: this.state.readyState
+        });
     },
-    onSubscribe: function(rid, user){
+    onSubscribe: function(rid, user) {
         this.state.rooms[rid].subscribers[user.id] = user;
-        this.trigger({rooms: this.state.rooms});
+        this.trigger({
+            rooms: this.state.rooms
+        });
     },
     onUnsubscribe: function(chatblast) {
         delete this.state.rooms[chatblast.rid].subscribers[chatblast.uid];
-        this.trigger({rooms: this.state.rooms});
+        this.trigger({
+            rooms: this.state.rooms
+        });
     },
     onSelectRoom: function(id) {
         this.state.currentRoom = id;
-        this.trigger({currentRoom: this.state.currentRoom});
+        this.trigger({
+            currentRoom: this.state.currentRoom
+        });
     },
     onGetRooms: function() {
         var request = new XMLHttpRequest();
@@ -77,7 +87,7 @@ module.exports = Reflux.createStore({
                     try {
                         var body = JSON.parse(request.responseText);
                         for (var rid in body) {
-                            if (body.hasOwnProperty(rid)){
+                            if (body.hasOwnProperty(rid)) {
                                 Actions.addRoom(rid, body[rid]);
                             }
                         }
@@ -99,7 +109,7 @@ module.exports = Reflux.createStore({
                     try {
                         var body = JSON.parse(request.responseText);
                         for (var uid in body) {
-                            if (body.hasOwnProperty(uid)){
+                            if (body.hasOwnProperty(uid)) {
                                 Actions.addUser(uid, body[uid]);
                             }
                         }
@@ -114,15 +124,21 @@ module.exports = Reflux.createStore({
     },
     onAddUser: function(uid, user) {
         this.state.users[uid] = user;
-        this.trigger({users: this.state.users});
+        this.trigger({
+            users: this.state.users
+        });
     },
     onAddSelf: function(user) {
         this.state.self = user;
-        this.trigger({self: this.state.self});
+        this.trigger({
+            self: this.state.self
+        });
     },
     onRemoveUser: function(uid) {
         delete this.state.users[uid];
-        this.trigger({users: this.state.users});
+        this.trigger({
+            users: this.state.users
+        });
     },
     onNewRoom: function(name) {
         this.sock.send(JSON.stringify({
@@ -130,24 +146,26 @@ module.exports = Reflux.createStore({
             "txt": name,
         }));
     },
-    onJoinRoom: function(rid){
+    onJoinRoom: function(rid) {
         this.sock.send(JSON.stringify({
             "cmd": "sub",
             "rid": rid,
         }));
     },
-    onLeaveRoom: function(rid){
+    onLeaveRoom: function(rid) {
         this.sock.send(JSON.stringify({
             "cmd": "unsub",
             "rid": rid,
         }));
-        if (this.state.currentRoom === rid){
+        if (this.state.currentRoom === rid) {
             this.state.currentRoom = "global";
-            this.trigger({currentRoom: this.state.currentRoom});
+            this.trigger({
+                currentRoom: this.state.currentRoom
+            });
         }
     },
     onAddRoom: function(rid, roomObj) {
-        if (!this.state.rooms.hasOwnProperty(rid)){
+        if (!this.state.rooms.hasOwnProperty(rid)) {
             this.state.rooms[rid] = {
                 chatlog: [],
                 name: roomObj.name,
@@ -156,18 +174,31 @@ module.exports = Reflux.createStore({
                 owner: roomObj.owner ? roomObj.owner : "",
             };
         }
-        this.trigger({rooms: this.state.rooms});
+        this.trigger({
+            rooms: this.state.rooms
+        });
     },
-    onRemoveRoom: function(rid){
-        if (this.state.rooms.hasOwnProperty(rid)){
+    onRemoveRoom: function(rid) {
+        if (this.state.rooms.hasOwnProperty(rid)) {
             delete this.state.rooms[rid];
+            this.trigger({
+                rooms: this.state.rooms
+            });
         }
     },
     onSwitchRooms: function(rid) {
-        if (this.state.rooms.hasOwnProperty(rid)){
+        if (this.state.rooms.hasOwnProperty(rid)) {
             this.state.currentRoom = rid;
         }
-        this.trigger({currentRoom: this.state.currentRoom});
+        this.trigger({
+            currentRoom: this.state.currentRoom
+        });
+    },
+    onCloseRoom: function(rid) {
+        this.sock.send(JSON.stringify({
+            cmd: "remvrm",
+            rid: rid,
+        }));
     },
     onAddChat: function(chat) {
         var room = this.state.rooms[chat.rid];
@@ -177,12 +208,16 @@ module.exports = Reflux.createStore({
             if (room.chatlog.length > 20) {
                 room.chatlog.shift();
             }
-            this.trigger({rooms: this.state.rooms});
+            this.trigger({
+                rooms: this.state.rooms
+            });
         }
     },
     onSetDomain: function(domain) {
         this.state.domain = domain;
-        this.trigger({domain: this.state.domain});
+        this.trigger({
+            domain: this.state.domain
+        });
     },
     onProcessMsg: function(msg) {
         try {

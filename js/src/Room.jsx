@@ -21,6 +21,9 @@ var Room = React.createClass({
     handleLeaveClick: function(e){
         Actions.leaveRoom(this.props.room.id);
     },
+    handleRemoveRoomClick: function(e){
+        Actions.closeRoom(this.props.room.id);
+    },
     updateReadCount: function(currentRoom, chats){
         var oldRead = this.state.read;
         var oldUnread = this.state.unread;
@@ -53,7 +56,9 @@ var Room = React.createClass({
             roomClass += "selected";
             var leaveRoom = "";
             if (!myRoom) {
-                leaveRoom = <span onClick={this.handleLeaveClick}> Leave room</span>;
+                leaveRoom = <span onClick={this.handleLeaveClick}> - Leave room</span>;
+            } else {
+                leaveRoom = <span onClick={this.handleRemoveRoomClick}> - Remove room</span>;
             }
             return (
                 <div className={roomClass}>
