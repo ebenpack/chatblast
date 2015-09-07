@@ -49,7 +49,7 @@ var Chatlog = React.createClass({
             msg.textContent = "";
         }
     },
-    getMaxHeight: function(){
+    getMaxHeight: function() {
         var node = React.findDOMNode(this.refs.log);
         if (node) {
             var rect = node.getBoundingClientRect();
@@ -60,7 +60,9 @@ var Chatlog = React.createClass({
     componentWillUpdate: function() {
         var node = React.findDOMNode(this.refs.log);
         this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
-        this.maxHeight = {maxHeight: (this.getMaxHeight() - 10) + 'px'};
+        this.maxHeight = {
+            maxHeight: (this.getMaxHeight() - 10) + 'px'
+        };
     },
     componentDidUpdate: function() {
         if (this.shouldScrollBottom) {

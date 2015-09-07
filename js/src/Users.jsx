@@ -2,7 +2,7 @@ var React = require('react');
 var util = require('./util');
 
 var Users = React.createClass({
-    render: function(){
+    render: function() {
         var users = this.props.users;
         return (
             <div className={this.props.className} >

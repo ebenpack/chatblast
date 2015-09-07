@@ -50,7 +50,7 @@ var Chatblast = React.createClass({
                 </div>
             </div>
         );
-  }
+    }
 });
 
 module.exports = Chatblast;

@@ -3,44 +3,48 @@ var Actions = require('./Actions');
 var Room = require('./Room.jsx');
 
 var Rooms = React.createClass({
-    getInitialState: function(){
+    getInitialState: function() {
         return {
             addOpen: false,
         };
     },
-    handleAddClick: function(e){
+    handleAddClick: function(e) {
         if (this.props.readyState === 1) {
-            this.setState({addOpen: !this.state.addOpen});
+            this.setState({
+                addOpen: !this.state.addOpen
+            });
         }
     },
-    handleRemoveClick: function(e){
+    handleRemoveClick: function(e) {
         var rid = e.target;
 
     },
-    handleInputKeyUp: function(e){
-        if (e.key === "Enter"){
+    handleInputKeyUp: function(e) {
+        if (e.key === "Enter") {
             var name = e.target.value;
             e.target.value = "";
             this.addRoom(name);
-            this.setState({addOpen: false});
+            this.setState({
+                addOpen: false
+            });
         }
     },
-    addRoom: function(name){
+    addRoom: function(name) {
         Actions.newRoom(name);
     },
-    filterRooms: function(rooms, self, currentRoom, fn){
+    filterRooms: function(rooms, self, currentRoom, fn) {
         return Object.keys(rooms).
-            filter(function(rid){
-                return fn(rooms[rid]);
-            }).
-            sort(function(a, b){
-                return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
-            }).
-            map(function(rid){
-                return (<Room currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
-            });
+        filter(function(rid) {
+            return fn(rooms[rid]);
+        }).
+        sort(function(a, b) {
+            return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
+        }).
+        map(function(rid) {
+            return (<Room currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
+        });
     },
-    render: function(){
+    render: function() {
         var rooms = this.props.rooms;
         var self = this.props.self;
         var myId = self.id;

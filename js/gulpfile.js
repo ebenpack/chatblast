@@ -6,7 +6,9 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 
 gulp.task('reactor', function() {
-    var b = browserify({standalone: 'chatblast'});
+    var b = browserify({
+        standalone: 'chatblast'
+    });
     b.transform(reactify);
     b.add('./src/main.jsx');
     return b.bundle()
@@ -14,15 +16,15 @@ gulp.task('reactor', function() {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('watch', function(){
+gulp.task('watch', function() {
     gulp.watch('./src/**/*.{js,jsx}', ['reactor']);
 });
 
 gulp.task('compress', function() {
-  return gulp.src('./dist/bundle.js')
-    .pipe(uglify())
-    .pipe(rename('bundle.min.js'))
-    .pipe(gulp.dest('./dist/'));
+    return gulp.src('./dist/bundle.js')
+        .pipe(uglify())
+        .pipe(rename('bundle.min.js'))
+        .pipe(gulp.dest('./dist/'));
 });
 
 gulp.task('build', ['reactor']);

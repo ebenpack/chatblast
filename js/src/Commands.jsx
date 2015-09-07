@@ -12,13 +12,12 @@ var Chatblast = React.createClass({
                 <div>
                     <Connect className={this.props.connectClass} readyState={this.props.readyState} />
                 </div>
-                
+
             );
         } else {
             return (<div></div>);
         }
-  }
+    }
 });
 
 module.exports = Chatblast;
-
