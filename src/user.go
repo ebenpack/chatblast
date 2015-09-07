@@ -34,11 +34,11 @@ func NewUser(name string, conn Connection) *User {
 		Id:        GUID(),
 		Connected: now,
 		Channel:   make(chan *Message),
-		Conn: conn,
+		Conn:      conn,
 	}
 	go newUser.Listen()
 	msg := &Message{
-		Cmd: "welcome",
+		Cmd:  "welcome",
 		User: newUser,
 	}
 	newUser.Tell(msg)
