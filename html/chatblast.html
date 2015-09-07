@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Websocks</title>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
     <style>
         html, *, *:before, *:after {
             -webkit-box-sizing: border-box;
@@ -15,17 +15,52 @@
         }
         .focus {
             background-color: aliceblue;
-        }
-        .connect {
-            position: absolute;
+            opacity: 1;
+            padding: 10px;
         }
         .connect, .chat {
             padding: 30px;
-            transition: visibility 2s, background-color 2s, opacity 2s;
+            transition: visibility 1s, background-color 1s, opacity 1s;
         }
         .blur {
-            opacity: 0;
-            visibility:hidden;
+            opacity: 0.7;
+            padding: 10px;
+        }
+        .room {
+            border-top: 1px dashed gray;
+            background-color: aliceblue;
+        }
+        .rooms {
+            margin-bottom: 10px;
+        }
+        .room:last-child {
+            border-bottom: 1px dashed gray;
+        }
+        .room.selected {
+            background-color: white;
+        }
+        /*.room.myRoom {
+            background-color: yellow;
+        }*/
+        .room ul {
+            margin-bottom: 0;
+        }
+        .room li {
+            list-style-type: square;
+            margin-left: .05em;
+            margin-bottom: 0;
+        }
+        @-webkit-keyframes pulse {
+            0% {background-color: #FFF;}
+            100% {background-color: #FF9A9F;}
+        }
+        keyframes pulse {
+            0% {background-color: #FFF;}
+            100% {background-color: #FF9A9F;}
+        }
+        .unread {
+            -webkit-animation: pulse 1s infinite alternate;
+            animation: pulse 1s ease-in-out infinite alternate;
         }
         .textInput {
             white-space: pre;
@@ -35,6 +70,7 @@
         }
         .messages {
             word-wrap: break-word;
+            overflow-y: auto;
         }
         .messages > div:nth-child(odd){
             background-color: white;
