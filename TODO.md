@@ -2,11 +2,10 @@
 
 * Improve UI
 * Cleanup/refactor
-* Assign/identify users by id (uuid? login timestamp?)
 * Save user prefs (esp. name)
 * Allow for user pics/avatars/whatever (don't want to store user images, though, so probably just an external link)
 * Rate limit?
-* Enforce message size limt
+* Enforce message size limit
 * Add rooms
     * 0 or more admins/room (default global room does not have admin)
     * User can open own room
