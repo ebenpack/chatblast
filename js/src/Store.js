@@ -4,7 +4,7 @@ var Actions = require('./Actions');
 var initialState = {
     "readyState": 0,
     "rooms": {},
-    "currentRoom": "global",
+    "currentRoom": "",
     "users": {},
     "self": {
         id: null
@@ -143,8 +143,10 @@ module.exports = Reflux.createStore({
     },
     onAddSelf: function(user) {
         this.state.self = user;
+        this.state.currentRoom = "global";
         this.trigger({
-            self: this.state.self
+            self: this.state.self,
+            currentRoom: this.state.currentRoom
         });
     },
     onRemoveUser: function(uid) {
