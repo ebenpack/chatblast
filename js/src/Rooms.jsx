@@ -15,24 +15,26 @@ var Rooms = React.createClass({
             });
         }
     },
-    handleRemoveClick: function(e) {
-        var rid = e.target;
-
-    },
     handleInputKeyUp: function(e) {
-        if (e.key === "Enter") {
-            var name = e.target.value;
-            e.target.value = "";
-            this.addRoom(name);
-            this.setState({
-                addOpen: false
-            });
+        if (this.props.readyState === 1) {
+            if (e.key === "Enter") {
+                var name = e.target.value;
+                e.target.value = "";
+                this.addRoom(name);
+                this.setState({
+                    addOpen: false
+                });
+            }
         }
     },
     addRoom: function(name) {
         Actions.newRoom(name);
     },
-    filterRooms: function(rooms, self, currentRoom, fn) {
+    filterRooms: function(fn) {
+        var self = this.props.self;
+        var rooms = this.props.rooms;
+        var currentRoom = this.props.currentRoom;
+        var readyState = this.props.readyState;
         return Object.keys(rooms).
         filter(function(rid) {
             return fn(rooms[rid]);
@@ -41,7 +43,7 @@ var Rooms = React.createClass({
             return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
         }).
         map(function(rid) {
-            return (<Room currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
+            return (<Room readyState={readyState} currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
         });
     },
     render: function() {
@@ -56,12 +58,12 @@ var Rooms = React.createClass({
                 <div className="roomList">
                     <h5>My rooms</h5>
                     <div>
-                        {this.filterRooms(rooms, self, currentRoom, function(room){
+                        {this.filterRooms(function(room){
                             return room.subscribers.hasOwnProperty(myId);
                         })}
                     </div>
                     <h5>Open rooms</h5>
-                        {this.filterRooms(rooms, self, currentRoom, function(room){
+                        {this.filterRooms(function(room){
                             return !(room.subscribers.hasOwnProperty(myId));
                         })}
                     <div>
