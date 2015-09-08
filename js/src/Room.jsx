@@ -15,14 +15,20 @@ var Room = React.createClass({
         Actions.switchRooms(this.props.room.id);
     },
     handleJoinClick: function(e) {
-        Actions.joinRoom(this.props.room.id);
-        Actions.switchRooms(this.props.room.id);
+        if (this.props.readyState === 1) {
+            Actions.joinRoom(this.props.room.id);
+            Actions.switchRooms(this.props.room.id);
+        }
     },
     handleLeaveClick: function(e) {
-        Actions.leaveRoom(this.props.room.id);
+        if (this.props.readyState === 1) {
+            Actions.leaveRoom(this.props.room.id);
+        }
     },
     handleRemoveRoomClick: function(e) {
-        Actions.closeRoom(this.props.room.id);
+        if (this.props.readyState === 1) {
+            Actions.closeRoom(this.props.room.id);
+        }
     },
     updateReadCount: function(currentRoom, chats) {
         var oldRead = this.state.read;
