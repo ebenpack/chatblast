@@ -6,6 +6,7 @@ var Room = React.createClass({
         return {
             unread: 0,
             read: 0,
+            confirmClose: false,
         };
     },
     componentWillReceiveProps: function(a, b, c, d) {
@@ -63,21 +64,25 @@ var Room = React.createClass({
         }
         if (rid === currentRoom) {
             roomClass += "selected";
-            var leaveRoom = "";
-            if (!myRoom) {
-                leaveRoom = <span onClick={this.handleLeaveClick}> - Leave room</span>;
-            } else {
-                leaveRoom = <span onClick={this.handleRemoveRoomClick}> - Remove room</span>;
+            var closeHandler = this.handleLeaveClick;
+            if (myRoom) {
+                closeHandler = this.handleRemoveRoomClick;
             }
+            var closeButton = <button className="close" onClick={closeHandler}>✖</button>;
             return (
                 <div className={roomClass}>
-                    <div>{roomText}{leaveRoom}</div>
+                    <div>{roomText}{closeButton}</div>
                     <ul>{
                         Object.keys(room.subscribers).
                             sort(function(a, b){
-                                return room.subscribers[a].name.toLowerCase() > room.subscribers[b].name.toLowerCase();
+                                return (
+                                    room.subscribers[a].name.toLowerCase() >
+                                    room.subscribers[b].name.toLowerCase()
+                                );
                             }).map(function(uid){
-                                return (<li key={rid + uid}>{room.subscribers[uid].name}</li>);
+                                return (
+                                    <li key={rid + uid}>{room.subscribers[uid].name}</li>
+                                );
                             })
                     }</ul>
                 </div>
