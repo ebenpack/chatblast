@@ -22,12 +22,12 @@ var Chatblast = React.createClass({
             chatClass = 'chat',
             roomClass = 'rooms',
             userClass = 'users';
-        if (store.readyState === 0) {
+        if (store.readyState !== 1) {
             connectClass += " focus";
             chatClass += " blur";
             roomClass += " blur";
             userClass += " blur";
-        } else if (store.readyState === 1) {
+        } else {
             chatClass += " focus";
             roomClass += " focus";
             userClass += " focus";

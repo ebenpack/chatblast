@@ -4,7 +4,7 @@ var Actions = require('./Actions');
 var Connect = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
-    if (this.props.readyState === 0) {
+    if (this.props.readyState !== 1) {
       var name = React.findDOMNode(this.refs.name);
       Actions.connect(name.value.trim());
       name.value = '';
