@@ -6,14 +6,17 @@ var Room = React.createClass({
         return {
             unread: 0,
             read: 0,
-            confirmClose: false,
+            closing: false,
+            confirmedClose: false,
         };
     },
     componentWillReceiveProps: function(a, b, c, d) {
         this.updateReadCount(this.props.currentRoom, this.props.room.chatlog);
     },
     handleSwitchClick: function(e) {
-        Actions.switchRooms(this.props.room.id);
+        if (this.props.readyState === 1) {
+            Actions.switchRooms(this.props.room.id);
+        }
     },
     handleJoinClick: function(e) {
         if (this.props.readyState === 1) {
@@ -21,15 +24,31 @@ var Room = React.createClass({
             Actions.switchRooms(this.props.room.id);
         }
     },
-    handleLeaveClick: function(e) {
+    handleCloseClick: function(e) {
         if (this.props.readyState === 1) {
+            this.setState({
+                closing: true,
+            });
+        }
+    },
+    handleConfirmCloseClick: function(e){
+        if (this.isMyRoom()) {
+            Actions.closeRoom(this.props.room.id);
+        } else {
             Actions.leaveRoom(this.props.room.id);
         }
     },
-    handleRemoveRoomClick: function(e) {
-        if (this.props.readyState === 1) {
-            Actions.closeRoom(this.props.room.id);
-        }
+    handleCancelCloseClick: function(e){
+        this.setState({
+            closing: false,
+        });
+    },
+    isMyRoom: function(){
+        var ownerId = this.props.room.owner.id;
+        return (
+            ownerId &&
+            this.props.self.id === ownerId
+        );
     },
     updateReadCount: function(currentRoom, chats) {
         var oldRead = this.state.read;
@@ -57,18 +76,29 @@ var Room = React.createClass({
         var myId = self.id;
         var roomClass = "room ";
         var roomText = room.name;
-        var myRoom = false;
-        if (room.owner.id && myId === room.owner.id) {
-            myRoom = true;
+        if (this.isMyRoom()) {
             roomClass += "myRoom ";
         }
-        if (rid === currentRoom) {
-            roomClass += "selected";
-            var closeHandler = this.handleLeaveClick;
-            if (myRoom) {
-                closeHandler = this.handleRemoveRoomClick;
+        if (this.state.closing) {
+            var leaveText = "";
+            if (this.isMyRoom()) {
+                leaveText = "close";
+            } else {
+                leaveText = "leave";
             }
-            var closeButton = <button className="close" onClick={closeHandler}>✖</button>;
+            roomClass += "closeconfirm";
+            return (
+                <div className={roomClass}>
+                    <p>Are you sure you want to {leaveText} this room?</p>
+                    <div className="buttons">
+                        <button className="confirm" onClick={this.handleConfirmCloseClick}>Close</button>
+                        <button className="cancel" onClick={this.handleCancelCloseClick}>Cancel</button>
+                    </div>
+                </div>
+            );
+        } else if (rid === currentRoom) {
+            roomClass += "selected";
+            var closeButton = <button className="close" onClick={this.handleCloseClick}>✖</button>;
             return (
                 <div className={roomClass}>
                     <div>{roomText}{closeButton}</div>
