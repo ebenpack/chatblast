@@ -78,7 +78,8 @@ module.exports = Reflux.createStore({
     },
     onUnsubscribe: function(chatblast) {
         delete this.state.rooms[chatblast.rid].subscribers[chatblast.uid];
-        if (this.state.currentRoom === chatblast.rid) {
+
+        if (chatblast.rid === this.state.self.id && this.state.currentRoom === chatblast.rid) {
             this.switchCurrentRoom();
         }
         this.trigger({
