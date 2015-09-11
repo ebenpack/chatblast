@@ -82,16 +82,16 @@ var Room = React.createClass({
         if (this.state.closing) {
             var leaveText = "";
             if (this.isMyRoom()) {
-                leaveText = "close";
+                leaveText = "Close";
             } else {
-                leaveText = "leave";
+                leaveText = "Leave";
             }
             roomClass += "closeconfirm";
             return (
                 <div className={roomClass}>
-                    <p>Are you sure you want to {leaveText} this room?</p>
+                    <p>Are you sure you want to {leaveText.toLowerCase()} this room?</p>
                     <div className="buttons">
-                        <button className="confirm" onClick={this.handleConfirmCloseClick}>Close</button>
+                        <button className="confirm" onClick={this.handleConfirmCloseClick}>{leaveText}</button>
                         <button className="cancel" onClick={this.handleCancelCloseClick}>Cancel</button>
                     </div>
                 </div>
