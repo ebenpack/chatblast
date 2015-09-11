@@ -41,6 +41,7 @@ module.exports = Reflux.createStore({
             console.log("Websocket - status: " + sock.readyState);
             sock.onopen = function(m) {
                 Actions.setReadyState(sock.readyState);
+                Actions.getRooms();
                 Actions.getUsers();
                 console.log("CONNECTION opened..." + self.state.readyState);
             };
