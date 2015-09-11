@@ -36,15 +36,15 @@ var Rooms = React.createClass({
         var currentRoom = this.props.currentRoom;
         var readyState = this.props.readyState;
         return Object.keys(rooms).
-        filter(function(rid) {
-            return fn(rooms[rid]);
-        }).
-        sort(function(a, b) {
-            return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
-        }).
-        map(function(rid) {
-            return (<Room readyState={readyState} currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
-        });
+            filter(function(rid) {
+                return fn(rooms[rid]);
+            }).
+            sort(function(a, b) {
+                return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
+            }).
+            map(function(rid) {
+                return (<Room readyState={readyState} currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
+            });
     },
     render: function() {
         var rooms = this.props.rooms;
@@ -59,7 +59,16 @@ var Rooms = React.createClass({
                     <h5>My rooms</h5>
                     <div>
                         {this.filterRooms(function(room){
-                            return room.subscribers.hasOwnProperty(myId);
+                            return room.owner.id === myId;
+                        })}
+                    </div>
+                    <h5>Subscribed</h5>
+                    <div>
+                        {this.filterRooms(function(room){
+                            return (
+                                room.owner.id !== myId &&
+                                room.subscribers.hasOwnProperty(myId)
+                            );
                         })}
                     </div>
                     <h5>Open rooms</h5>
