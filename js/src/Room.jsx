@@ -31,19 +31,19 @@ var Room = React.createClass({
             });
         }
     },
-    handleConfirmCloseClick: function(e){
+    handleConfirmCloseClick: function(e) {
         if (this.isMyRoom()) {
             Actions.closeRoom(this.props.room.id);
         } else {
             Actions.leaveRoom(this.props.room.id);
         }
     },
-    handleCancelCloseClick: function(e){
+    handleCancelCloseClick: function(e) {
         this.setState({
             closing: false,
         });
     },
-    isMyRoom: function(){
+    isMyRoom: function() {
         var ownerId = this.props.room.owner.id;
         return (
             ownerId &&
