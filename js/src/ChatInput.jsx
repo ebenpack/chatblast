@@ -1,10 +1,14 @@
 var React = require('react');
 var Chat = require('./Chat.jsx');
 var Actions = require('./Actions');
+var ImageUpload = require('./ImageUpload.jsx');
 
 var ChatInput = React.createClass({
-    handleDrop: function(e) {
+    addImg: function(img){
         var chatBox = React.findDOMNode(this.refs.chatBox);
+        chatBox.appendChild(img);
+    },
+    handleDrop: function(e) {
         e.stopPropagation();
         e.preventDefault();
         var length = e.dataTransfer.files.length;
@@ -15,7 +19,7 @@ var ChatInput = React.createClass({
                 reader.onload = function(e) {
                     var img = new Image();
                     img.src = e.target.result;
-                    chatBox.appendChild(img);
+                    this.addImg(img);
                 };
                 reader.readAsDataURL(curr);
             });
@@ -28,7 +32,7 @@ var ChatInput = React.createClass({
             forEach(function(curr) {
                 var img = new Image();
                 img.src = curr;
-                chatBox.appendChild(img);
+                this.addImg(img);
             });
         }
     },
@@ -94,12 +98,15 @@ var ChatInput = React.createClass({
     handleDragOver: function(e) {
         e.stopPropagation();
         e.preventDefault();
-
     },
     render: function() {
         var contentEditable = this.props.readyState === 1 ? "true" : "false";
         return (
-            <div className="textInput" contentEditable={contentEditable} onDragEnter={this.handleDragEnter} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyUp={this.handleKeyUp} onKeyDown={this.handleKeyDown} placeholder="Type a chatblast!" ref="chatBox"></div>
+            <div>
+                <div className="textInput" contentEditable={contentEditable} onDragEnter={this.handleDragEnter} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyUp={this.handleKeyUp} onKeyDown={this.handleKeyDown} placeholder="Type a chatblast!" ref="chatBox">
+                </div>
+                <ImageUpload addImg={this.addImg} readyState={this.props.readyState} />
+            </div>
         );
     }
 });
