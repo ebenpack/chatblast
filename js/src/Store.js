@@ -73,6 +73,9 @@ module.exports = Reflux.createStore({
     },
     onSubscribe: function(rid, user) {
         this.state.rooms[rid].subscribers[user.id] = user;
+        if (user.id === this.state.self.id) {
+            Actions.getRoom(rid);
+        }
         this.trigger({
             rooms: this.state.rooms
         });
@@ -113,6 +116,24 @@ module.exports = Reflux.createStore({
             }
         };
         request.open('GET', '//' + self.state.domain + '/rooms/', true);
+        request.send(null);
+    },
+    onGetRoom: function(rid) {
+        var request = new XMLHttpRequest();
+        var self = this;
+        request.onreadystatechange = function() {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    try {
+                        var body = JSON.parse(request.responseText);
+                        Actions.addRoom(rid, body);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+            }
+        };
+        request.open('GET', '//' + self.state.domain + '/rooms/' + rid, true);
         request.send(null);
     },
     onGetUsers: function() {
@@ -184,6 +205,8 @@ module.exports = Reflux.createStore({
                 subscribers: roomObj.subscribers ? roomObj.subscribers : {},
                 owner: roomObj.owner ? roomObj.owner : "",
             };
+        } else {
+            this.state.rooms[rid].subscribers = roomObj.subscribers;
         }
         this.trigger({
             rooms: this.state.rooms

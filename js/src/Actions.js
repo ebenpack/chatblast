@@ -4,6 +4,7 @@ module.exports = Reflux.createActions([
     'processMsg',
     'getUsers',
     'getRooms',
+    'getRoom',
     'addUser',
     'addSelf',
     'addRoom',
