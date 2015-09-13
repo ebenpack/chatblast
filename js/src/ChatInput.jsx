@@ -17,6 +17,11 @@ var ChatInput = React.createClass({
         if (range) {
             range.deleteContents();
             range.insertNode(element);
+            // Wipe out the range, as once text has been
+            // added, it will no longer be meaningful
+            this.setState({
+                range: null,
+            });
         } else {
             var chatBox = React.findDOMNode(this.refs.chatBox);
             chatBox.appendChild(element);
