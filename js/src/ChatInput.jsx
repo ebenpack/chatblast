@@ -5,12 +5,40 @@ var ImageUpload = require('./ImageUpload.jsx');
 var EmojiInput = require('./EmojiInput.jsx');
 
 var ChatInput = React.createClass({
+    getInitialState: function(){
+        return {
+            range: null,
+        };
+    },
     addElement: function(element){
-        var chatBox = React.findDOMNode(this.refs.chatBox);
-        chatBox.appendChild(element);
+        // Add element at the saved range, if it
+        // exists, otherwise stick it at the end.
+        var range = this.state.range;
+        if (range) {
+            range.deleteContents();
+            range.insertNode(element);
+        } else {
+            var chatBox = React.findDOMNode(this.refs.chatBox);
+            chatBox.appendChild(element);
+        }
     },
     handleBlur: function(e){
-        var foo = 1;
+        // Save selection so it can be restored later
+        // when we have focus again
+        var range;
+        if (window.getSelection && window.getSelection().getRangeAt) {
+            range = window.getSelection().getRangeAt(0);
+        }
+        this.setState({
+            range: range,
+        });
+    },
+    handleFocus: function(e) {
+        if (window.getSelection && this.state.range) {
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(this.state.range);
+        }
     },
     handleDrop: function(e) {
         e.stopPropagation();
@@ -111,6 +139,7 @@ var ChatInput = React.createClass({
                     className="textInput"
                     contentEditable={contentEditable}
                     onBlur={this.handleBlur}
+                    onFocus={this.handleFocus}
                     onDragEnter={this.handleDragEnter}
                     onDragOver={this.handleDragOver}
                     onDrop={this.handleDrop}
