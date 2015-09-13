@@ -2,7 +2,7 @@ var React = require('react');
 var Actions = require('./Actions');
 
 var Room = React.createClass({
-    getInitialState: function(a, b, c, d) {
+    getInitialState: function() {
         return {
             unread: 0,
             read: 0,
@@ -10,7 +10,7 @@ var Room = React.createClass({
             confirmedClose: false,
         };
     },
-    componentWillReceiveProps: function(a, b, c, d) {
+    componentWillReceiveProps: function() {
         this.updateReadCount(this.props.currentRoom, this.props.room.chatlog);
     },
     handleSwitchClick: function(e) {
