@@ -2,11 +2,15 @@ var React = require('react');
 var Chat = require('./Chat.jsx');
 var Actions = require('./Actions');
 var ImageUpload = require('./ImageUpload.jsx');
+var EmojiInput = require('./EmojiInput.jsx');
 
 var ChatInput = React.createClass({
-    addImg: function(img){
+    addElement: function(element){
         var chatBox = React.findDOMNode(this.refs.chatBox);
-        chatBox.appendChild(img);
+        chatBox.appendChild(element);
+    },
+    handleBlur: function(e){
+        var foo = 1;
     },
     handleDrop: function(e) {
         e.stopPropagation();
@@ -103,9 +107,20 @@ var ChatInput = React.createClass({
         var contentEditable = this.props.readyState === 1 ? "true" : "false";
         return (
             <div>
-                <div className="textInput" contentEditable={contentEditable} onDragEnter={this.handleDragEnter} onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyUp={this.handleKeyUp} onKeyDown={this.handleKeyDown} placeholder="Type a chatblast!" ref="chatBox">
+                <div 
+                    className="textInput"
+                    contentEditable={contentEditable}
+                    onBlur={this.handleBlur}
+                    onDragEnter={this.handleDragEnter}
+                    onDragOver={this.handleDragOver}
+                    onDrop={this.handleDrop}
+                    onKeyUp={this.handleKeyUp}
+                    onKeyDown={this.handleKeyDown}
+                    placeholder="Type a chatblast!"
+                    ref="chatBox">
                 </div>
-                <ImageUpload addImg={this.addImg} readyState={this.props.readyState} />
+                <ImageUpload addElement={this.addElement} readyState={this.props.readyState} />
+                <EmojiInput readyState={this.props.readyState} addElement={this.addElement} />
             </div>
         );
     }

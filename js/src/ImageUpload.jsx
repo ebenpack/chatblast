@@ -11,7 +11,7 @@ var ImageUpload = React.createClass({
             reader.onload = function(e) {
                 var img = new Image();
                 img.src = e.target.result;
-                that.props.addImg(img);
+                that.props.addElement(img);
             };
             Array.prototype.forEach.call(e.target.files, function(curr) {
                 reader.readAsDataURL(curr);
