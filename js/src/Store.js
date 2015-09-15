@@ -1,6 +1,8 @@
 var Reflux = require('reflux');
 var Actions = require('./Actions');
 
+var reqwest = require('reqwest');
+
 var initialState = {
     "readyState": 0,
     "rooms": {},
@@ -97,66 +99,37 @@ module.exports = Reflux.createStore({
         });
     },
     onGetRooms: function() {
-        var request = new XMLHttpRequest();
-        var self = this;
-        request.onreadystatechange = function() {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    try {
-                        var body = JSON.parse(request.responseText);
-                        for (var rid in body) {
-                            if (body.hasOwnProperty(rid)) {
-                                Actions.addRoom(rid, body[rid]);
-                            }
-                        }
-                    } catch (e) {
-                        console.log(e);
+        return reqwest('//' + this.state.domain + '/rooms/')
+            .then(function(resp) {
+                for (var rid in resp) {
+                    if (resp.hasOwnProperty(rid)) {
+                        Actions.addRoom(rid, resp[rid]);
                     }
                 }
-            }
-        };
-        request.open('GET', '//' + self.state.domain + '/rooms/', true);
-        request.send(null);
+            }, function(err, msg) {
+                console.log('Error: getRooms request failed', err, msg);
+            });
     },
     onGetRoom: function(rid) {
-        var request = new XMLHttpRequest();
-        var self = this;
-        request.onreadystatechange = function() {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    try {
-                        var body = JSON.parse(request.responseText);
-                        Actions.addRoom(rid, body);
-                    } catch (e) {
-                        console.log(e);
-                    }
-                }
-            }
-        };
-        request.open('GET', '//' + self.state.domain + '/rooms/' + rid, true);
-        request.send(null);
+        return reqwest('//' + self.state.domain + '/rooms/' + rid)
+            .then(function(resp) {
+                Actions.addRoom(rid, resp);
+            }, function(err, msg) {
+                console.log('Error: getRoom request failed', err, msg);
+            });
     },
     onGetUsers: function() {
-        var request = new XMLHttpRequest();
         var self = this;
-        request.onreadystatechange = function() {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    try {
-                        var body = JSON.parse(request.responseText);
-                        for (var uid in body) {
-                            if (body.hasOwnProperty(uid)) {
-                                Actions.addUser(uid, body[uid]);
-                            }
-                        }
-                    } catch (e) {
-
+        return reqwest('//' + self.state.domain + '/users/')
+            .then(function(resp) {
+                for (var uid in resp) {
+                    if (resp.hasOwnProperty(uid)) {
+                        Actions.addUser(uid, resp[uid]);
                     }
                 }
-            }
-        };
-        request.open('GET', '//' + self.state.domain + '/users/', true);
-        request.send(null);
+            }, function(err, msg) {
+                console.log('Error: getUsers request failed', err, msg);
+            });
     },
     onAddUser: function(uid, user) {
         this.state.users[uid] = user;
