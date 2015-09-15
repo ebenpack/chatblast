@@ -32,8 +32,6 @@ module.exports = Reflux.createStore({
     },
     onConnect: function(name) {
         var nameQS = name ? ('?name=' + name) : '';
-        this.state.rooms = {};
-        this.state.users = {};
         Actions.getRooms();
         Actions.getUsers();
         var sock = new WebSocket("ws://" + this.state.domain + "/sock" + nameQS);
@@ -99,11 +97,18 @@ module.exports = Reflux.createStore({
         });
     },
     onGetRooms: function() {
+        var rooms = this.state.rooms;
         reqwest('//' + this.state.domain + '/rooms/')
             .then(function(resp) {
-                for (var rid in resp) {
+                var rid;
+                for (rid in resp) {
                     if (resp.hasOwnProperty(rid)) {
                         Actions.addRoom(rid, resp[rid]);
+                    }
+                }
+                for (rid in rooms) {
+                    if (!resp.hasOwnProperty(rid)) {
+                        Actions.removeRoom(rid);
                     }
                 }
             }, function(err, msg) {
@@ -119,11 +124,18 @@ module.exports = Reflux.createStore({
             });
     },
     onGetUsers: function() {
+        var users = this.state.users;
         reqwest('//' + this.state.domain + '/users/')
             .then(function(resp) {
+                var uid;
                 for (var uid in resp) {
                     if (resp.hasOwnProperty(uid)) {
                         Actions.addUser(uid, resp[uid]);
+                    }
+                }
+                for (uid in users) {
+                    if (!users.hasOwnProperty(uid)) {
+                        Actions.removeUser(uid);
                     }
                 }
             }, function(err, msg) {
