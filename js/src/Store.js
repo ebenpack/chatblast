@@ -99,7 +99,7 @@ module.exports = Reflux.createStore({
         });
     },
     onGetRooms: function() {
-        return reqwest('//' + this.state.domain + '/rooms/')
+        reqwest('//' + this.state.domain + '/rooms/')
             .then(function(resp) {
                 for (var rid in resp) {
                     if (resp.hasOwnProperty(rid)) {
@@ -111,7 +111,7 @@ module.exports = Reflux.createStore({
             });
     },
     onGetRoom: function(rid) {
-        return reqwest('//' + self.state.domain + '/rooms/' + rid)
+        reqwest('//' + this.state.domain + '/rooms/' + rid)
             .then(function(resp) {
                 Actions.addRoom(rid, resp);
             }, function(err, msg) {
@@ -119,8 +119,7 @@ module.exports = Reflux.createStore({
             });
     },
     onGetUsers: function() {
-        var self = this;
-        return reqwest('//' + self.state.domain + '/users/')
+        reqwest('//' + this.state.domain + '/users/')
             .then(function(resp) {
                 for (var uid in resp) {
                     if (resp.hasOwnProperty(uid)) {
