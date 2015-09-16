@@ -73,6 +73,14 @@ var TextInput = React.createClass({
     handleKeyDown: function(e) {
         if (e.keyCode === 13 && !e.shiftKey) {
             e.preventDefault();
+        } else if (e.keyCode === 66 && e.ctrlKey) {
+            // Bold
+            e.preventDefault();
+            document.execCommand('bold', false, null);
+        }  else if (e.keyCode === 73 && e.ctrlKey) {
+            // Italic
+            e.preventDefault();
+            document.execCommand('italic', false, null);
         }
     },
     handleKeyUp: function(e) {
