@@ -13,8 +13,8 @@ var Chat = React.createClass({
             if (curr.name.indexOf("text") === 0) {
                 var styles = curr.name.split(',').slice(1);
                 text = (<span key={idx} >{curr.value}</span>);
-                output = styles.reduce(function(prev, curr){
-                    if (curr === 'i'){
+                output = styles.reduce(function(prev, curr) {
+                    if (curr === 'i') {
                         return (<i>{prev}</i>);
                     } else if (curr === 'b') {
                         return (<b>{prev}</b>);

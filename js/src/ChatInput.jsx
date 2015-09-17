@@ -6,7 +6,7 @@ var EmojiInput = require('./EmojiInput.jsx');
 var TextInput = require('./TextInput.jsx');
 
 var ChatInput = React.createClass({
-    addElement: function(element){
+    addElement: function(element) {
         this.refs.TextInput.addElement(element);
     },
     render: function() {

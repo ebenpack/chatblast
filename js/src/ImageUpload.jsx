@@ -22,8 +22,7 @@ var ImageUpload = React.createClass({
         var labelName = 'imageuploadlabel';
         var inputName = 'imageupload';
         var disabled = false;
-        if (this.props.readyState === 1) {
-        } else {
+        if (this.props.readyState !== 1) {
             disabled = 'disabled';
             labelName += ' disabled';
             inputName += ' disabled';
