@@ -2,12 +2,12 @@ var React = require('react');
 var Actions = require('./Actions');
 
 var TextInput = React.createClass({
-    getInitialState: function(){
+    getInitialState: function() {
         return {
             range: null,
         };
     },
-    addElement: function(element){
+    addElement: function(element) {
         // Add element at the saved range, if it
         // exists, otherwise stick it at the end.
         var range = this.state.range;
@@ -24,7 +24,7 @@ var TextInput = React.createClass({
             chatBox.appendChild(element);
         }
     },
-    handleBlur: function(e){
+    handleBlur: function(e) {
         // Save selection so it can be restored later
         // when we have focus again
         var range;
@@ -77,7 +77,7 @@ var TextInput = React.createClass({
             // Bold
             e.preventDefault();
             document.execCommand('bold', false, null);
-        }  else if (e.keyCode === 73 && e.ctrlKey) {
+        } else if (e.keyCode === 73 && e.ctrlKey) {
             // Italic
             e.preventDefault();
             document.execCommand('italic', false, null);
@@ -97,34 +97,48 @@ var TextInput = React.createClass({
     submit: function() {
         var chatBox = React.findDOMNode(this.refs.chatBox);
 
-        function serialize(prev, curr) {
-            if (typeof curr === "string") {
-                prev.push({
-                    name: "text",
-                    value: curr
-                });
-                return prev;
-            } else if (curr.nodeName === "#text") {
-                prev.push({
-                    name: "text",
-                    value: curr.textContent
-                });
-                return prev;
-            } else if (curr.nodeName && curr.nodeName.toLowerCase() === "div") {
-                prev.push.apply(prev, Array.prototype.reduce.call(curr.childNodes, serialize, []));
-                return prev;
-            } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
-                prev.push({
-                    name: "img",
-                    value: curr.src
-                });
-                return prev;
-            } else {
+        function serialize(elmnt) {
+            function helper(prev, curr) {
+                var nodeName = curr.nodeName;
+                if (typeof curr === "string") {
+                    prev.push({
+                        name: "text",
+                        value: curr
+                    });
+                    console.log("GOT SOME TEXT");
+                    return prev;
+                } else if (curr.nodeName === "#text") {
+                    var computedStyle = window.getComputedStyle(curr.parentElement);
+                    var name = "text";
+                    if (computedStyle.fontWeight === 'bold') {
+                        name += ',b';
+                    }
+                    if (computedStyle.fontStyle === 'italic') {
+                        name += ',i';
+                    }
+                    if (computedStyle.textDecoration === 'underline') {
+                        name += ',u';
+                    }
+                    prev.push({
+                        name: name,
+                        value: curr.textContent
+                    });
+                    return prev;
+                } else if (curr.nodeName && curr.nodeName.toLowerCase() === "img") {
+                    prev.push({
+                        name: "img",
+                        value: curr.src
+                    });
+                    return prev;
+                } else if (curr.childNodes) {
+                    prev.push.apply(prev, serialize(curr));
+                }
                 return prev;
             }
+            return Array.prototype.reduce.call(elmnt.childNodes, helper, []);
         }
         chatBox.normalize();
-        var msg = Array.prototype.reduce.call(chatBox.childNodes, serialize, []);
+        var msg = serialize(chatBox);
         if (msg.length !== 0) {
             Actions.chatBlast({
                 "cmd": "msg",
