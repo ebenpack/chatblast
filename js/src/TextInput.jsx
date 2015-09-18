@@ -46,6 +46,7 @@ var TextInput = React.createClass({
         e.stopPropagation();
         e.preventDefault();
         var length = e.dataTransfer.files.length;
+        var self = this;
         if (length > 0) {
             var count = 0;
             Array.prototype.forEach.call(e.dataTransfer.files, function(curr) {
@@ -53,7 +54,7 @@ var TextInput = React.createClass({
                 reader.onload = function(e) {
                     var img = new Image();
                     img.src = e.target.result;
-                    this.addImg(img);
+                    self.addElement(img);
                 };
                 reader.readAsDataURL(curr);
             });
@@ -66,7 +67,7 @@ var TextInput = React.createClass({
             forEach(function(curr) {
                 var img = new Image();
                 img.src = curr;
-                this.addImg(img);
+                this.addElement(img);
             });
         }
     },
