@@ -74,10 +74,11 @@ module.exports = Reflux.createStore({
     onSubscribe: function(rid, user) {
         this.state.rooms[rid].subscribers[user.id] = user;
         if (user.id === this.state.self.id) {
-            Actions.getRoom(rid);
+            this.state.currentRoom = rid;
         }
         this.trigger({
-            rooms: this.state.rooms
+            currentRoom: this.state.currentRoom,
+            rooms: this.state.rooms,
         });
     },
     onUnsubscribe: function(chatblast) {
