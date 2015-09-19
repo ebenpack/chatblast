@@ -16,6 +16,4 @@
     * Public/private rooms
 * Add whisper command (private message to user of choice)
 * Add whisper and/or shout block(?)
-* Add simple markup support (bold, italic, underline, etc.)
-* Add emoticon/emoji support
 * Deploy... somewhere (heroku? GAE?)
