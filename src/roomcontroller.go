@@ -16,15 +16,19 @@ type RoomController struct {
 	// Map of user Ids to users
 	Users     map[string]*User
 	UsersLock sync.RWMutex
+	MaxRooms  int
+	MaxUsers  int
 	Channel   chan *Message
 }
 
-func MakeRoomController() *RoomController {
+func MakeRoomController(maxUsers, maxRooms int) *RoomController {
 	rc := &RoomController{
 		Rooms:     make(map[string]*Room),
 		RoomsLock: sync.RWMutex{},
 		Users:     make(map[string]*User),
 		UsersLock: sync.RWMutex{},
+		MaxRooms:  maxRooms,
+		MaxUsers:  maxUsers,
 		Channel:   make(chan *Message),
 	}
 	log.Println("New RoomController created")
@@ -89,16 +93,24 @@ func (rc *RoomController) SendGlobal(msg *Message) {
 
 func (rc *RoomController) AddRoom(name string, u *User) {
 	// TODO Only allow uniquely named rooms?
-	newRoom := NewRoom(name, u)
-	rc.SetRoom(newRoom.Id, newRoom)
-	msg := &Message{
-		RoomId: "global",
-		Cmd:    "newrm",
-		Room:   newRoom,
+	if len(rc.Rooms) < rc.MaxRooms {
+		newRoom := NewRoom(name, u)
+		rc.SetRoom(newRoom.Id, newRoom)
+		msg := &Message{
+			RoomId: "global",
+			Cmd:    "newrm",
+			Room:   newRoom,
+		}
+		rc.Dispatch(msg)
+		rc.Subscribe(u, newRoom.Id)
+		log.Println("New room", name, "created")
+	} else {
+		msg := &Message{
+			Cmd:  "err",
+			Text: "global room limit reached.",
+		}
+		u.Tell(msg)
 	}
-	rc.Dispatch(msg)
-	rc.Subscribe(u, newRoom.Id)
-	log.Println("New room", name, "created")
 }
 
 func (rc *RoomController) RemoveRoom(rid string, u *User) {
@@ -125,16 +137,22 @@ func (rc *RoomController) RemoveRoom(rid string, u *User) {
 	}
 }
 
-func (rc *RoomController) AddUser(u *User) {
-	log.Println("New user", u.Name, "added to RoomController")
-	rc.SetUser(u.Id, u)
-	msg := &Message{
-		Cmd:    "login",
-		User:   u,
-		RoomId: "global",
+func (rc *RoomController) AddUser(u *User) (ok bool) {
+	if len(rc.Users) < rc.MaxUsers {
+		log.Println("New user", u.Name, "added to RoomController")
+		rc.SetUser(u.Id, u)
+		msg := &Message{
+			Cmd:    "login",
+			User:   u,
+			RoomId: "global",
+		}
+		rc.SendGlobal(msg)
+		rc.Subscribe(u, "global")
+		ok = true
+	} else {
+		ok = false
 	}
-	rc.SendGlobal(msg)
-	rc.Subscribe(u, "global")
+	return ok
 }
 
 func (rc *RoomController) RemoveUser(u *User) {

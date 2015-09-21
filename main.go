@@ -16,7 +16,7 @@ import (
 )
 
 // Instantiate global roomcontroller
-var globalRC = chatblast.MakeRoomController()
+var globalRC = chatblast.MakeRoomController(100, 100)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -50,13 +50,22 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 
 	// Make user and add them to globalRoom
 	self := chatblast.NewUser(name, conn)
-	globalRC.AddUser(self)
+	ok := globalRC.AddUser(self)
 
 	// Register some teardown
 	defer func() {
 		globalRC.RemoveUser(self)
 		conn.Close()
 	}()
+
+	if !ok {
+		// Global user limit exceeded
+		conn.WriteJSON(chatblast.Message{
+			Cmd:  "err",
+			Text: "global user limit reached.",
+		})
+		return
+	}
 
 	// Read incomining requests from connected client, and
 	// broadcast to roomcontroller
