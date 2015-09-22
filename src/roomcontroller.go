@@ -234,8 +234,12 @@ func (rc *RoomController) Dispatch(incoming *Message) {
 			log.Println("Bad remvrm request")
 		}
 		// TODO error handling
-		//	case "wspr":
-		//		TODO add whispers
+	case "wspr":
+		if room, ok := rc.GetRoom(incoming.RoomId); ok {
+			room.Whisper(incoming)
+		} else {
+			log.Println("Bad remvrm request")
+		}
 	default:
 		if room, ok := rc.GetRoom(incoming.RoomId); ok {
 			room.Broadcast(incoming)
