@@ -238,7 +238,7 @@ func (rc *RoomController) Dispatch(incoming *Message) {
 		if room, ok := rc.GetRoom(incoming.RoomId); ok {
 			room.Whisper(incoming)
 		} else {
-			log.Println("Bad remvrm request")
+			log.Println("Bad wspr request")
 		}
 	default:
 		if room, ok := rc.GetRoom(incoming.RoomId); ok {
