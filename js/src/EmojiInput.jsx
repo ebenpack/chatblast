@@ -40,7 +40,7 @@ var EmojiInput = React.createClass({
             );
         }
         return (
-            <div className="emojiinput" >
+            <div title={this.props.title} className="emojiinput" >
                 <span onClick={this.handleClick}>😃</span>{emojiTable}
             </div>
         );

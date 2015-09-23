@@ -2,6 +2,7 @@ var React = require('react');
 var Reflux = require('reflux');
 var Store = require('./Store');
 var Chatlog = require('./Chatlog.jsx');
+var ChatInput = require('./ChatInput.jsx');
 var Rooms = require('./Rooms.jsx');
 var Users = require('./Users.jsx');
 var Commands = require('./Commands.jsx');
@@ -37,11 +38,18 @@ var Chatblast = React.createClass({
         var users = store.users;
         var self = store.self;
         var currentRoom = store.currentRoom;
+        var roomMates = {};
+        if (currentRoom) {
+            roomMates = rooms[currentRoom].subscribers;
+        }
         var chatlog = rooms[currentRoom] ? rooms[currentRoom].chatlog : [];
         return (
             <div className="chatblast">
                 <div className="left six columns">
-                    <Chatlog className={chatClass} chatlog={chatlog} readyState={store.readyState} />
+                    <div className={chatClass} >
+                        <ChatInput readyState={store.readyState} roomMates={roomMates} self={self} />
+                        <Chatlog chatlog={chatlog} readyState={store.readyState} />
+                    </div>
                 </div>
                 <div className="right six columns">
                     <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom} self={self}  />

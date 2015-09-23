@@ -28,7 +28,7 @@ var ImageUpload = React.createClass({
             inputName += ' disabled';
         }
         return (
-            <label className={labelName}><input type="file" disabled={disabled} className={inputName} onChange={this.handleChange} /></label>
+            <label title={this.props.title} className={labelName}><input type="file" disabled={disabled} className={inputName} onChange={this.handleChange} /></label>
         );
     }
 });

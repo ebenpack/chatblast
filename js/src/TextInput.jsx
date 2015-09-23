@@ -141,11 +141,19 @@ var TextInput = React.createClass({
         chatBox.normalize();
         var msg = serialize(chatBox);
         if (msg.length !== 0) {
-            Actions.chatBlast({
-                "cmd": "msg",
-                "data": msg
-            });
-            chatBox.textContent = '';
+            if (this.state.whisper) {
+                Actions.chatBlast({
+                    "cmd": "wspr",
+                    "data": msg
+                });
+                chatBox.textContent = '';
+            } else {
+                Actions.chatBlast({
+                    "cmd": "msg",
+                    "data": msg
+                });
+                chatBox.textContent = '';
+            }
         }
     },
     handleDragEnter: function(e) {
