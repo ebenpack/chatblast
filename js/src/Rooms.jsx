@@ -66,6 +66,7 @@ var Rooms = React.createClass({
                     <div>
                         {this.filterRooms(function(room){
                             return (
+                                myId &&
                                 room.owner.id !== myId &&
                                 room.subscribers.hasOwnProperty(myId)
                             );
@@ -73,7 +74,7 @@ var Rooms = React.createClass({
                     </div>
                     <h5>Open rooms</h5>
                         {this.filterRooms(function(room){
-                            return !(room.subscribers.hasOwnProperty(myId));
+                            return !(myId && room.subscribers.hasOwnProperty(myId));
                         })}
                     <div>
                     </div>

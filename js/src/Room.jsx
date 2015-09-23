@@ -117,7 +117,7 @@ var Room = React.createClass({
                     }</ul>
                 </div>
             );
-        } else if (room.subscribers.hasOwnProperty(myId)) {
+        } else if (myId && room.subscribers.hasOwnProperty(myId)) {
             var unread = this.state.unread;
             if (unread > 0) {
                 roomText += " - " + unread + " unread";
