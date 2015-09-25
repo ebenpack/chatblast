@@ -233,6 +233,9 @@ module.exports = Reflux.createStore({
             });
         }
     },
+    onAddWhisper: function(chat) {
+        var foo;
+    },
     onSetDomain: function(domain) {
         this.state.domain = domain;
         this.trigger({
@@ -254,6 +257,9 @@ module.exports = Reflux.createStore({
                     break;
                 case "msg":
                     Actions.addChat(chatblast);
+                    break;
+                case "msg":
+                    Actions.addWhisper(chatblast);
                     break;
                 case "sub":
                     Actions.subscribe(chatblast.rid, chatblast.user);
