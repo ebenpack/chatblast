@@ -13,7 +13,7 @@ var User = React.createClass({
         if (this.props.showConnected) {
             userString += ', connected at ' + util.convertFromEpoch(user.connected);
         }
-        return (<li onClick={this.handleClick} key={this.props.user.id}>{userString}</li>);
+        return (<li onClick={this.handleClick}>{userString}</li>);
     }
 });
 

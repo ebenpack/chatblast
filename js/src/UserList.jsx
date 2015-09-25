@@ -12,7 +12,7 @@ var UserList = React.createClass({
                 sort(function(a, b){
                     return users[a].name < users[b].name;
                 }).map(function(uid){
-                    return (<User onClick={this.props.onClick} showConnected={showConnected} user={users[uid]} />);
+                    return (<User key={users[uid].id} onClick={this.props.onClick} showConnected={showConnected} user={users[uid]} />);
                 }, this)
             }
             </ul>
