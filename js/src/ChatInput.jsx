@@ -30,7 +30,7 @@ var ChatInput = React.createClass({
         var myId = this.props.self.id;
         return (
             <div>
-                <TextInput readyState={this.props.readyState} whisperState={this.state.whisperState} ref="TextInput" />
+                <TextInput readyState={this.props.readyState} whisperState={this.state.whisperState} whisperee={this.state.whisperee} ref="TextInput" />
                 <ImageUpload readyState={this.props.readyState} addElement={this.addElement} title="Upload image" />
                 <EmojiInput readyState={this.props.readyState} addElement={this.addElement} title="Add emoji" />
                 <WhisperInput readyState={this.props.readyState} toggleWhisper={this.toggleWhisper} whisperState={this.state.whisperState} roomMates={this.props.roomMates} setWhisperee={this.setWhisperee} myId={myId} title="Send whisper" />

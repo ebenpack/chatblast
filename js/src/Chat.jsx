@@ -29,10 +29,11 @@ var Chat = React.createClass({
             }
             return output;
         });
+        var sez = chat.cmd === 'msg' ? " sez: " : " whispers: "
         return (
             <div className="msg">
                 <div className="payload">
-                    {chat.user.name + " sez: "}{serializedChat}
+                    {chat.user.name + sez}{serializedChat}
                 </div>
                 <div className="time">
                     {dateString}

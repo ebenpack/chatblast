@@ -144,7 +144,8 @@ var TextInput = React.createClass({
             if (this.props.whisperState) {
                 Actions.chatBlast({
                     "cmd": "wspr",
-                    "data": msg
+                    "data": msg,
+                    "uid": this.props.whisperee
                 });
                 chatBox.textContent = '';
             } else {
