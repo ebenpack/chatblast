@@ -141,7 +141,7 @@ var TextInput = React.createClass({
         chatBox.normalize();
         var msg = serialize(chatBox);
         if (msg.length !== 0) {
-            if (this.state.whisper) {
+            if (this.props.whisperState) {
                 Actions.chatBlast({
                     "cmd": "wspr",
                     "data": msg
