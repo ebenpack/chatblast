@@ -16,7 +16,6 @@ module.exports = Reflux.createActions([
     'removeRoom',
     'removeUser',
     'addChat',
-    'addWhisper',
     'connect',
     'setReadyState',
     'setDomain',
