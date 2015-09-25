@@ -43,6 +43,10 @@ var Chatblast = React.createClass({
             roomMates = rooms[currentRoom].subscribers;
         }
         var chatlog = rooms[currentRoom] ? rooms[currentRoom].chatlog : [];
+        var commands = '';
+        if (store.readyState !== 1) {
+            commands = (<Commands className={connectClass} readyState={store.readyState} />);
+        }
         return (
             <div className="chatblast">
                 <div className="left six columns">
@@ -54,7 +58,7 @@ var Chatblast = React.createClass({
                 <div className="right six columns">
                     <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom} self={self}  />
                     <Users className={userClass} readyState={store.readyState} users={users} currentRoom={currentRoom}  />
-                    <Commands className={connectClass} readyState={store.readyState} />
+                    {commands}
                 </div>
             </div>
         );
