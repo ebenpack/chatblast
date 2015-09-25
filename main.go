@@ -84,7 +84,6 @@ func sockhandler(w http.ResponseWriter, r *http.Request) {
 			incoming.Text = "Bad JSON"
 			self.Tell(&incoming)
 		} else {
-			incoming.UserId = self.Id
 			incoming.User = self
 			incoming.Time = time.Now().Unix()
 			globalRC.Broadcast(&incoming)
