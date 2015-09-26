@@ -1,16 +1,10 @@
 var React = require('react');
 
 var EmojiInput = React.createClass({
-    getInitialState: function() {
-        return {
-            isOpen: false
-        };
-    },
     handleClick: function(e) {
         if (this.props.readyState === 1) {
-            this.setState({
-                isOpen: !this.state.isOpen,
-            });
+            this.props.setWhisperMenuState(false);
+            this.props.setEmojiMenuState(!this.props.emojiMenuActive);
         }
     },
     handleEmojiClick: function(e) {
@@ -18,9 +12,7 @@ var EmojiInput = React.createClass({
             var text = e.target.textContent !== undefined ? e.target.textContent : e.target.innerText;
             var textNode = document.createTextNode(text);
             this.props.addElement(textNode);
-            this.setState({
-                isOpen: false,
-            });
+            this.props.setEmojiMenuState(false);
         }
     },
     render: function() {
@@ -28,7 +20,7 @@ var EmojiInput = React.createClass({
             "😁", "😂", "😃", "😄", "😅", "😆", "😉", "😊", "😋", "😌", "😍", "😏", "😒", "😓", "😔", "😖", "😘", "😚", "😜", "😝", "😞", "😠", "😡", "😢", "😣", "😥", "😨", "😩", "😪", "😫", "😭", "😰", "😱", "😲", "😳", "😵", "😷", "😸", "😹", "😺", "😻", "😼", "😽", "😾", "😿", "🙀", "¯\\_(ツ)_/¯", "( ͡° ͜ʖ ͡°)", "(╯°□°)╯︵ ┻━┻", "ಠ_ಠ"
         ];
         var emojiTable = "";
-        if (this.state.isOpen) {
+        if (this.props.emojiMenuActive) {
             emojiTable = (
                 <div className="emojitable">
                     {foo.map(function(curr){
