@@ -5,7 +5,8 @@ var Chat = React.createClass({
     render: function() {
         var chat = this.props.chat,
             dateString = util.convertFromEpoch(chat.time),
-            output = false;
+            output = false,
+            users = this.props.users;
 
         var serializedChat = chat.data.map(function(curr, idx) {
             var output = false,
@@ -29,7 +30,7 @@ var Chat = React.createClass({
             }
             return output;
         });
-        var sez = chat.cmd === 'msg' ? " sez: " : " whispers: "
+        var sez = chat.cmd === 'msg' ? " sez: " : " whispers at " + users[chat.uid].name + ": ";
         return (
             <div className="msg">
                 <div className="payload">

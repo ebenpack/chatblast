@@ -53,7 +53,7 @@ var Chatblast = React.createClass({
                 <div className="left six columns">
                     <div className={chatClass} >
                         <ChatInput readyState={store.readyState} roomMates={roomMates} self={self} />
-                        <Chatlog chatlog={chatlog} readyState={store.readyState} />
+                        <Chatlog chatlog={chatlog} users={users} readyState={store.readyState} />
                     </div>
                 </div>
                 <div className="right six columns">

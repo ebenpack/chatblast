@@ -27,8 +27,8 @@ var Chatlog = React.createClass({
         return (
             <div className="messages" ref="log" style={this.maxHeight}>
                 {this.props.chatlog.map(function(chat){
-                    return (<Chat key={chat.time} chat={chat} />);
-                })}
+                    return (<Chat key={chat.time} users={this.props.users} chat={chat} />);
+                }, this)}
             </div>
         );
     }
