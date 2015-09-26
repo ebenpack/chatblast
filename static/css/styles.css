@@ -130,9 +130,13 @@ keyframes pulse {
 .whisperees li {
     padding: 0 10px;
     margin-bottom: 0;
+    border-top: 1px dashed gray
 }
-.whisperees li:nth-child(odd) {
-    background-color: aliceblue;
+.whisperees li:last-child {
+    border-bottom: 1px dashed gray
+}
+.whisperees li:hover {
+    background-color: gainsboro;
 }
 .imageuploadlabel.disabled {
     cursor: auto;
