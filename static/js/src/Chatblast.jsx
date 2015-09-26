@@ -41,6 +41,7 @@ var Chatblast = React.createClass({
         var roomMates = {};
         if (currentRoom) {
             roomMates = rooms[currentRoom].subscribers;
+            delete rooms[currentRoom].subscribers[self.id];
         }
         var chatlog = rooms[currentRoom] ? rooms[currentRoom].chatlog : [];
         var commands = '';
