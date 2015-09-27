@@ -1,5 +1,6 @@
 var React = require('react');
 var Actions = require('./Actions');
+var UserList = require('./UserList.jsx');
 
 var Room = React.createClass({
     getInitialState: function() {
@@ -102,19 +103,10 @@ var Room = React.createClass({
             return (
                 <div className={roomClass}>
                     <div>{roomText}{closeButton}</div>
-                    <ul>{
-                        Object.keys(room.subscribers).
-                            sort(function(a, b){
-                                return (
-                                    room.subscribers[a].name.toLowerCase() >
-                                    room.subscribers[b].name.toLowerCase()
-                                );
-                            }).map(function(uid){
-                                return (
-                                    <li key={rid + uid}>{room.subscribers[uid].name}</li>
-                                );
-                            })
-                    }</ul>
+                    <UserList
+                        users={room.subscribers}
+                        showConnected={false}
+                    />
                 </div>
             );
         } else if (myId && room.subscribers.hasOwnProperty(myId)) {
