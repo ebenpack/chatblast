@@ -24,6 +24,9 @@ var WhisperInput = React.createClass({
         var roomMates = this.props.roomMates;
         var myId = this.props.myId;
         var whispericon = "whispericon inactive";
+        function filterRoommates(uid){
+            return uid !== myId;
+        }
         if (whisperState) {
             whispericon = "whispericon active";
         }
@@ -32,6 +35,7 @@ var WhisperInput = React.createClass({
                 <div className="whisperees">
                     <UserList
                         users={roomMates}
+                        filterUsers={filterRoommates}
                         showConnected={false}
                         onClick={this.setWhisperee}
                     />
