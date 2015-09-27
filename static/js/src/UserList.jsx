@@ -6,9 +6,11 @@ var UserList = React.createClass({
     render: function() {
         var users = this.props.users;
         var showConnected = this.props.showConnected;
+        var filterUsers = this.props.filterUsers || function(user){return true;};
         return (
             <ul>
             {Object.keys(users).
+                filter(filterUsers).
                 sort(function(a, b){
                     return users[a].name < users[b].name;
                 }).map(function(uid){
