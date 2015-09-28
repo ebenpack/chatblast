@@ -8,14 +8,28 @@ var WhisperInput = React.createClass({
         this.props.setWhisperee(e, user);
     },
     toggleWhisperMenu: function(e){
-        if (!this.props.whisperMenuActive && this.props.whisperState) {
-            // If whisper menu not showing and user currently
-            // whispering, cancel whispering and don't show menu
-            this.props.toggleWhisper();
-        } else {
-            this.props.setWhisperMenuState(!this.props.whisperMenuActive);
-            this.props.setEmojiMenuState(false);
+        if (this.props.readyState === 1 && Object.keys(this.filterRoommates()).length > 0) {
+            if (!this.props.whisperMenuActive && this.props.whisperState) {
+                // If whisper menu not showing and user currently
+                // whispering, cancel whispering and don't show menu
+                this.props.toggleWhisper();
+            } else {
+                this.props.setWhisperMenuState(!this.props.whisperMenuActive);
+                this.props.setEmojiMenuState(false);
+            }
         }
+    },
+    filterRoommates: function(){
+        var roomMates = this.props.roomMates;
+        var filteredRoomMates = {};
+        var uid;
+        var myId = this.props.myId;
+        for (uid in roomMates) {
+            if (roomMates.hasOwnProperty(uid) && (uid !== myId)) {
+                filteredRoomMates[uid] = roomMates[uid];
+            }
+        }
+        return filteredRoomMates;
     },
     render: function(){
         var whisperState = this.props.whisperState;
@@ -24,9 +38,6 @@ var WhisperInput = React.createClass({
         var roomMates = this.props.roomMates;
         var myId = this.props.myId;
         var whispericon = "whispericon inactive";
-        function filterRoommates(uid){
-            return uid !== myId;
-        }
         if (whisperState) {
             whispericon = "whispericon active";
         }
@@ -34,8 +45,7 @@ var WhisperInput = React.createClass({
             whisperees = (
                 <div className="whisperees">
                     <UserList
-                        users={roomMates}
-                        filterUsers={filterRoommates}
+                        users={this.filterRoommates()}
                         showConnected={false}
                         onClick={this.setWhisperee}
                     />
