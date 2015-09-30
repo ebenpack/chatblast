@@ -43,6 +43,10 @@ img {
     margin-left: .05em;
     margin-bottom: 0;
 }
+.user.blocked {
+    text-decoration: line-through;
+    color: red;
+}
 button.close {
     float: right;
     cursor: pointer;
