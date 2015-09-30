@@ -22,4 +22,5 @@ module.exports = Reflux.createActions([
     'chatBlast',
     'subscribe',
     'unsubscribe',
+    'toggleUserBlock',
 ]);

@@ -8,6 +8,7 @@ var initialState = {
     "rooms": {},
     "currentRoom": "",
     "users": {},
+    "blocked": {},
     "self": {
         id: null
     },
@@ -232,6 +233,17 @@ module.exports = Reflux.createStore({
                 rooms: this.state.rooms
             });
         }
+    },
+    onToggleUserBlock: function(user) {
+        var uid = user.id;
+        if (this.state.blocked.hasOwnProperty(uid)) {
+            delete this.state.blocked[uid];
+        } else {
+            this.state.blocked[uid] = true;
+        }
+        this.trigger({
+            blocked: this.state.blocked
+        });
     },
     onSetDomain: function(domain) {
         this.state.domain = domain;
