@@ -31,16 +31,20 @@ var Chat = React.createClass({
             return output;
         });
         var sez = chat.cmd === 'msg' ? " sez: " : " whispers at " + users[chat.uid].name + ": ";
-        return (
-            <div className="msg">
-                <div className="payload">
-                    {chat.user.name + sez}{serializedChat}
+        if (this.props.blocked.hasOwnProperty(chat.user.id)) {
+            return (<div className="blocked">*blocked*</div>);
+        } else {
+            return (
+                <div className="msg">
+                    <div className="payload">
+                        {chat.user.name + sez}{serializedChat}
+                    </div>
+                    <div className="time">
+                        {dateString}
+                    </div>
                 </div>
-                <div className="time">
-                    {dateString}
-                </div>
-            </div>
-        );
+            );
+        }
     }
 });
 
