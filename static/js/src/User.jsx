@@ -14,14 +14,18 @@ var User = React.createClass({
     },
     render: function() {
         var user = this.props.user;
+        var blocked = this.props.blocked;
         var extras = '';
+        var userClass = 'user';
         if (this.props.showConnected) {
-            var blockedText = ' | ' + (this.props.blocked ? 'Unblock' : 'Block');
+            var blockedText = ' | ' + (blocked ? 'Unblock' : 'Block');
             extras = (
                 <span>, connected at {util.convertFromEpoch(user.connected)} <span onClick={this.handleConnectedClick}>{blockedText}</span></span>
             );
+        } if (blocked) {
+            userClass += ' blocked';
         }
-        return (<li onClick={this.handleClick}>{user.name}{extras}</li>);
+        return (<li className={userClass} onClick={this.handleClick}>{user.name}{extras}</li>);
     }
 });
 
