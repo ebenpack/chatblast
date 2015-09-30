@@ -51,13 +51,13 @@ var Chatblast = React.createClass({
             <div className="chatblast">
                 <div className="left six columns">
                     <div className={chatClass} >
-                        <ChatInput readyState={store.readyState} roomMates={roomMates} self={self} />
-                        <Chatlog chatlog={chatlog} users={users} readyState={store.readyState} />
+                        <ChatInput readyState={store.readyState} roomMates={roomMates} self={self} blocked={store.blocked} />
+                        <Chatlog chatlog={chatlog} users={users} readyState={store.readyState} blocked={store.blocked} />
                     </div>
                 </div>
                 <div className="right six columns">
-                    <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom} self={self}  />
-                    <Users className={userClass} readyState={store.readyState} users={users} currentRoom={currentRoom}  />
+                    <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom} self={self} blocked={store.blocked} />
+                    <Users className={userClass} readyState={store.readyState} users={users} currentRoom={currentRoom} blocked={store.blocked} />
                     {commands}
                 </div>
             </div>

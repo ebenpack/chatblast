@@ -76,6 +76,7 @@ var ChatInput = React.createClass({
                     toggleWhisper={this.toggleWhisper}
                     setWhisperee={this.setWhisperee}
                     myId={myId}
+                    blocked={this.props.blocked}
                     title="Send whisper"
                 />
             </div>

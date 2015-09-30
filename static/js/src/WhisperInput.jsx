@@ -46,8 +46,8 @@ var WhisperInput = React.createClass({
                 <div className="whisperees">
                     <UserList
                         users={this.filterRoommates()}
-                        showConnected={false}
                         onClick={this.setWhisperee}
+                        blocked={this.props.blocked}
                     />
                 </div>
             );

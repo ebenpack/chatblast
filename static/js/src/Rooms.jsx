@@ -43,8 +43,8 @@ var Rooms = React.createClass({
                 return rooms[a].name.toLowerCase() > rooms[b].name.toLowerCase();
             }).
             map(function(rid) {
-                return (<Room readyState={readyState} currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} />);
-            });
+                return (<Room readyState={readyState} currentRoom={currentRoom} self={self} room={rooms[rid]} key={rid} blocked={this.props.blocked} />);
+            }, this);
     },
     render: function() {
         var rooms = this.props.rooms;

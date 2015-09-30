@@ -105,7 +105,7 @@ var Room = React.createClass({
                     <div>{roomText}{closeButton}</div>
                     <UserList
                         users={room.subscribers}
-                        showConnected={false}
+                        blocked={this.props.blocked}
                     />
                 </div>
             );
