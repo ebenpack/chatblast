@@ -62,10 +62,11 @@ func (r *Room) Broadcast(msg *Message) {
 
 func (r *Room) Whisper(msg *Message) {
 	if whisperee, ok := r.Subscribers[msg.UserId]; ok {
+		msg.Whisperee = whisperee
 		whisperee.Tell(msg)
-	}
-	if self, ok := r.Subscribers[msg.User.Id]; ok {
-		self.Tell(msg)
+		if self, ok := r.Subscribers[msg.User.Id]; ok {
+			self.Tell(msg)
+		}
 	}
 }
 
