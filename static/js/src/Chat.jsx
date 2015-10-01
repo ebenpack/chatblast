@@ -30,7 +30,7 @@ var Chat = React.createClass({
             }
             return output;
         });
-        var sez = chat.cmd === 'msg' ? " sez: " : " whispers at " + users[chat.uid].name + ": ";
+        var sez = chat.cmd === 'msg' ? " sez: " : " whispers at " + chat.whisperee.name + ": ";
         if (this.props.blocked.hasOwnProperty(chat.user.id)) {
             return (<div className="blocked">*blocked*</div>);
         } else {
