@@ -23,4 +23,6 @@ module.exports = Reflux.createActions([
     'subscribe',
     'unsubscribe',
     'toggleUserBlock',
+    'toggleWhisper',
+    'setWhisperee',
 ]);
