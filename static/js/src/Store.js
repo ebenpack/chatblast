@@ -4,15 +4,17 @@ var Actions = require('./Actions');
 var reqwest = require('reqwest');
 
 var initialState = {
-    "readyState": 0,
-    "rooms": {},
-    "currentRoom": "",
-    "users": {},
-    "blocked": {},
-    "self": {
+    readyState: 0,
+    rooms: {},
+    currentRoom: "",
+    users: {},
+    blocked: {},
+    self: {
         id: null
     },
-    "domain": ""
+    whisperState: false,
+    whisperee: '',
+    domain: ""
 };
 
 module.exports = Reflux.createStore({
@@ -27,8 +29,11 @@ module.exports = Reflux.createStore({
         } else {
             this.state.currentRoom = "";
         }
+        this.state.whisperState = false;
         this.trigger({
-            currentRoom: this.state.currentRoom
+            currentRoom: this.state.currentRoom,
+            whisperState: this.state.whisperState,
+            whisperee: '',
         });
     },
     onConnect: function(name) {
@@ -74,8 +79,10 @@ module.exports = Reflux.createStore({
         this.state.rooms[rid].subscribers[user.id] = user;
         if (user.id === this.state.self.id) {
             this.state.currentRoom = rid;
+            this.state.whisperState = false;
         }
         this.trigger({
+            whisperState: this.state.whisperState,
             currentRoom: this.state.currentRoom,
             rooms: this.state.rooms,
         });
@@ -210,9 +217,11 @@ module.exports = Reflux.createStore({
     onSwitchRooms: function(rid) {
         if (this.state.rooms.hasOwnProperty(rid)) {
             this.state.currentRoom = rid;
+            this.state.whisperState = false;
         }
         this.trigger({
-            currentRoom: this.state.currentRoom
+            currentRoom: this.state.currentRoom,
+            whisperState: this.state.whisperState,
         });
     },
     onCloseRoom: function(rid) {
@@ -243,6 +252,24 @@ module.exports = Reflux.createStore({
         }
         this.trigger({
             blocked: this.state.blocked
+        });
+    },
+    onToggleWhisper: function() {
+        if (this.state.whisperState) {
+            this.state.whisperee = '';
+        }
+        this.state.whisperState = !this.state.whisperState;
+        this.trigger({
+            whisperee: this.state.whisperee,
+            whisperState: this.state.whisperState,
+        });
+    },
+    onSetWhisperee: function(user) {
+        this.state.whisperState = true;
+        this.state.whisperee = user.id;
+        this.trigger({
+            whisperState: this.state.whisperState,
+            whisperee: this.state.whisperee,
         });
     },
     onSetDomain: function(domain) {

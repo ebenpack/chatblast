@@ -1,18 +1,20 @@
 var React = require('react');
 var UserList = require('./UserList.jsx');
 
+var Actions = require('./Actions');
+
 var WhisperInput = React.createClass({
     setWhisperee: function(e, user){
         this.props.setWhisperMenuState(false);
         this.props.setEmojiMenuState(false);
-        this.props.setWhisperee(e, user);
+        Actions.setWhisperee(user);
     },
     toggleWhisperMenu: function(e){
         if (this.props.readyState === 1 && Object.keys(this.filterRoommates()).length > 0) {
             if (!this.props.whisperMenuActive && this.props.whisperState) {
                 // If whisper menu not showing and user currently
                 // whispering, cancel whispering and don't show menu
-                this.props.toggleWhisper();
+                Actions.toggleWhisper();
             } else {
                 this.props.setWhisperMenuState(!this.props.whisperMenuActive);
                 this.props.setEmojiMenuState(false);

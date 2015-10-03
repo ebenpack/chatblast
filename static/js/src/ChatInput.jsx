@@ -8,8 +8,6 @@ var WhisperInput = require('./WhisperInput.jsx');
 var ChatInput = React.createClass({
     getInitialState: function() {
         return {
-            whisperState: false,
-            whisperee: '',
             whisperMenuActive: false,
             emojiMenuActive: false,
         };
@@ -24,22 +22,6 @@ var ChatInput = React.createClass({
             emojiMenuActive: state,
         });
     },
-    toggleWhisper: function(){
-        if (this.state.whisperState) {
-            this.setState({
-                whisperee: '',
-            });
-        }
-        this.setState({
-            whisperState: !this.state.whisperState,
-        });
-    },
-    setWhisperee: function(e, user) {
-        this.setState({
-            whisperState: true,
-            whisperee: user.id,
-        });
-    },
     addElement: function(element) {
         this.refs.TextInput.addElement(element);
     },
@@ -49,8 +31,8 @@ var ChatInput = React.createClass({
             <div>
                 <TextInput
                     readyState={this.props.readyState}
-                    whisperState={this.state.whisperState}
-                    whisperee={this.state.whisperee}
+                    whisperState={this.props.whisperState}
+                    whisperee={this.props.whisperee}
                     ref="TextInput"
                 />
                 <ImageUpload
@@ -71,10 +53,9 @@ var ChatInput = React.createClass({
                     setEmojiMenuState={this.setEmojiMenuState}
                     setWhisperMenuState={this.setWhisperMenuState}
                     whisperMenuActive={this.state.whisperMenuActive}
-                    whisperState={this.state.whisperState}
+                    whisperState={this.props.whisperState}
                     roomMates={this.props.roomMates}
                     toggleWhisper={this.toggleWhisper}
-                    setWhisperee={this.setWhisperee}
                     myId={myId}
                     blocked={this.props.blocked}
                     title="Send whisper"

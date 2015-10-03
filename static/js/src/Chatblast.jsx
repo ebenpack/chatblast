@@ -45,19 +45,49 @@ var Chatblast = React.createClass({
         var chatlog = rooms[currentRoom] ? rooms[currentRoom].chatlog : [];
         var commands = '';
         if (store.readyState !== 1) {
-            commands = (<Commands className={connectClass} readyState={store.readyState} />);
+            commands = (
+                <Commands
+                    className={connectClass}
+                    readyState={store.readyState}
+                />
+            );
         }
         return (
             <div className="chatblast">
                 <div className="left six columns">
                     <div className={chatClass} >
-                        <ChatInput readyState={store.readyState} roomMates={roomMates} self={self} blocked={store.blocked} />
-                        <Chatlog chatlog={chatlog} users={users} readyState={store.readyState} blocked={store.blocked} />
+                        <ChatInput
+                            readyState={store.readyState}
+                            roomMates={roomMates}
+                            self={self}
+                            blocked={store.blocked}
+                            whisperState={store.whisperState}
+                            whisperee={store.whisperee}
+                        />
+                        <Chatlog
+                            chatlog={chatlog}
+                            users={users}
+                            readyState={store.readyState}
+                            blocked={store.blocked}
+                        />
                     </div>
                 </div>
                 <div className="right six columns">
-                    <Rooms className={roomClass} readyState={store.readyState} rooms={rooms} currentRoom={currentRoom} self={self} blocked={store.blocked} />
-                    <Users className={userClass} readyState={store.readyState} users={users} currentRoom={currentRoom} blocked={store.blocked} />
+                    <Rooms
+                        className={roomClass}
+                        readyState={store.readyState}
+                        rooms={rooms}
+                        currentRoom={currentRoom}
+                        self={self}
+                        blocked={store.blocked}
+                    />
+                    <Users
+                        className={userClass}
+                        readyState={store.readyState}
+                        users={users}
+                        currentRoom={currentRoom}
+                        blocked={store.blocked}
+                    />
                     {commands}
                 </div>
             </div>
