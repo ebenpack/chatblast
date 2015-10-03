@@ -165,8 +165,14 @@ module.exports = Reflux.createStore({
     },
     onRemoveUser: function(uid) {
         delete this.state.users[uid];
+        if (this.state.whisperee === uid) {
+            this.state.whisperee = '';
+            this.state.whisperState = false;
+        }
         this.trigger({
-            users: this.state.users
+            users: this.state.users,
+            whisperee: this.state.whisperee,
+            whisperState: this.state.whisperState,
         });
     },
     onNewRoom: function(name) {
