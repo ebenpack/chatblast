@@ -4,6 +4,7 @@ module.exports = Reflux.createActions([
     'processMsg',
     'getUsers',
     'getRooms',
+    'getRoom',
     'addUser',
     'addSelf',
     'addRoom',
@@ -21,4 +22,7 @@ module.exports = Reflux.createActions([
     'chatBlast',
     'subscribe',
     'unsubscribe',
+    'toggleUserBlock',
+    'toggleWhisper',
+    'setWhisperee',
 ]);

@@ -1,15 +1,20 @@
 var Reflux = require('reflux');
 var Actions = require('./Actions');
 
+var reqwest = require('reqwest');
+
 var initialState = {
-    "readyState": 0,
-    "rooms": {},
-    "currentRoom": "global",
-    "users": {},
-    "self": {
+    readyState: 0,
+    rooms: {},
+    currentRoom: "",
+    users: {},
+    blocked: {},
+    self: {
         id: null
     },
-    "domain": ""
+    whisperState: false,
+    whisperee: '',
+    domain: ""
 };
 
 module.exports = Reflux.createStore({
@@ -24,14 +29,15 @@ module.exports = Reflux.createStore({
         } else {
             this.state.currentRoom = "";
         }
+        this.state.whisperState = false;
         this.trigger({
-            currentRoom: this.state.currentRoom
+            currentRoom: this.state.currentRoom,
+            whisperState: this.state.whisperState,
+            whisperee: '',
         });
     },
     onConnect: function(name) {
         var nameQS = name ? ('?name=' + name) : '';
-        this.state.rooms = {};
-        this.state.users = {};
         Actions.getRooms();
         Actions.getUsers();
         var sock = new WebSocket("ws://" + this.state.domain + "/sock" + nameQS);
@@ -41,7 +47,6 @@ module.exports = Reflux.createStore({
             console.log("Websocket - status: " + sock.readyState);
             sock.onopen = function(m) {
                 Actions.setReadyState(sock.readyState);
-                Actions.getUsers();
                 console.log("CONNECTION opened..." + self.state.readyState);
             };
             sock.onmessage = function(m) {
@@ -72,13 +77,20 @@ module.exports = Reflux.createStore({
     },
     onSubscribe: function(rid, user) {
         this.state.rooms[rid].subscribers[user.id] = user;
+        if (user.id === this.state.self.id) {
+            this.state.currentRoom = rid;
+            this.state.whisperState = false;
+        }
         this.trigger({
-            rooms: this.state.rooms
+            whisperState: this.state.whisperState,
+            currentRoom: this.state.currentRoom,
+            rooms: this.state.rooms,
         });
     },
     onUnsubscribe: function(chatblast) {
         delete this.state.rooms[chatblast.rid].subscribers[chatblast.uid];
-        if (this.state.currentRoom === chatblast.rid) {
+
+        if (chatblast.uid === this.state.self.id && this.state.currentRoom === chatblast.rid) {
             this.switchCurrentRoom();
         }
         this.trigger({
@@ -92,48 +104,50 @@ module.exports = Reflux.createStore({
         });
     },
     onGetRooms: function() {
-        var request = new XMLHttpRequest();
-        var self = this;
-        request.onreadystatechange = function() {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    try {
-                        var body = JSON.parse(request.responseText);
-                        for (var rid in body) {
-                            if (body.hasOwnProperty(rid)) {
-                                Actions.addRoom(rid, body[rid]);
-                            }
-                        }
-                    } catch (e) {
-                        console.log(e);
+        var rooms = this.state.rooms;
+        reqwest('//' + this.state.domain + '/rooms/')
+            .then(function(resp) {
+                var rid;
+                for (rid in resp) {
+                    if (resp.hasOwnProperty(rid)) {
+                        Actions.addRoom(rid, resp[rid]);
                     }
                 }
-            }
-        };
-        request.open('GET', '//' + self.state.domain + '/rooms/', true);
-        request.send(null);
+                for (rid in rooms) {
+                    if (!resp.hasOwnProperty(rid)) {
+                        Actions.removeRoom(rid);
+                    }
+                }
+            }, function(err, msg) {
+                console.log('Error: getRooms request failed', err, msg);
+            });
+    },
+    onGetRoom: function(rid) {
+        reqwest('//' + this.state.domain + '/rooms/' + rid)
+            .then(function(resp) {
+                Actions.addRoom(rid, resp);
+            }, function(err, msg) {
+                console.log('Error: getRoom request failed', err, msg);
+            });
     },
     onGetUsers: function() {
-        var request = new XMLHttpRequest();
-        var self = this;
-        request.onreadystatechange = function() {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    try {
-                        var body = JSON.parse(request.responseText);
-                        for (var uid in body) {
-                            if (body.hasOwnProperty(uid)) {
-                                Actions.addUser(uid, body[uid]);
-                            }
-                        }
-                    } catch (e) {
-
+        var users = this.state.users;
+        reqwest('//' + this.state.domain + '/users/')
+            .then(function(resp) {
+                var uid;
+                for (var uid in resp) {
+                    if (resp.hasOwnProperty(uid)) {
+                        Actions.addUser(uid, resp[uid]);
                     }
                 }
-            }
-        };
-        request.open('GET', '//' + self.state.domain + '/users/', true);
-        request.send(null);
+                for (uid in users) {
+                    if (!users.hasOwnProperty(uid)) {
+                        Actions.removeUser(uid);
+                    }
+                }
+            }, function(err, msg) {
+                console.log('Error: getUsers request failed', err, msg);
+            });
     },
     onAddUser: function(uid, user) {
         this.state.users[uid] = user;
@@ -143,14 +157,22 @@ module.exports = Reflux.createStore({
     },
     onAddSelf: function(user) {
         this.state.self = user;
+        this.state.currentRoom = "global";
         this.trigger({
-            self: this.state.self
+            self: this.state.self,
+            currentRoom: this.state.currentRoom
         });
     },
     onRemoveUser: function(uid) {
         delete this.state.users[uid];
+        if (this.state.whisperee === uid) {
+            this.state.whisperee = '';
+            this.state.whisperState = false;
+        }
         this.trigger({
-            users: this.state.users
+            users: this.state.users,
+            whisperee: this.state.whisperee,
+            whisperState: this.state.whisperState,
         });
     },
     onNewRoom: function(name) {
@@ -180,6 +202,8 @@ module.exports = Reflux.createStore({
                 subscribers: roomObj.subscribers ? roomObj.subscribers : {},
                 owner: roomObj.owner ? roomObj.owner : "",
             };
+        } else {
+            this.state.rooms[rid].subscribers = roomObj.subscribers;
         }
         this.trigger({
             rooms: this.state.rooms
@@ -199,9 +223,11 @@ module.exports = Reflux.createStore({
     onSwitchRooms: function(rid) {
         if (this.state.rooms.hasOwnProperty(rid)) {
             this.state.currentRoom = rid;
+            this.state.whisperState = false;
         }
         this.trigger({
-            currentRoom: this.state.currentRoom
+            currentRoom: this.state.currentRoom,
+            whisperState: this.state.whisperState,
         });
     },
     onCloseRoom: function(rid) {
@@ -223,6 +249,35 @@ module.exports = Reflux.createStore({
             });
         }
     },
+    onToggleUserBlock: function(user) {
+        var uid = user.id;
+        if (this.state.blocked.hasOwnProperty(uid)) {
+            delete this.state.blocked[uid];
+        } else {
+            this.state.blocked[uid] = true;
+        }
+        this.trigger({
+            blocked: this.state.blocked
+        });
+    },
+    onToggleWhisper: function() {
+        if (this.state.whisperState) {
+            this.state.whisperee = '';
+        }
+        this.state.whisperState = !this.state.whisperState;
+        this.trigger({
+            whisperee: this.state.whisperee,
+            whisperState: this.state.whisperState,
+        });
+    },
+    onSetWhisperee: function(user) {
+        this.state.whisperState = true;
+        this.state.whisperee = user.id;
+        this.trigger({
+            whisperState: this.state.whisperState,
+            whisperee: this.state.whisperee,
+        });
+    },
     onSetDomain: function(domain) {
         this.state.domain = domain;
         this.trigger({
@@ -242,6 +297,8 @@ module.exports = Reflux.createStore({
                 case "welcome":
                     Actions.addSelf(chatblast.user);
                     break;
+                case "wspr":
+                    // Intentional fallthrough
                 case "msg":
                     Actions.addChat(chatblast);
                     break;

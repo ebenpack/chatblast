@@ -2,92 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Websocks</title>
+    <title>Chatblast!</title>
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
-    <style>
-        html, *, *:before, *:after {
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-        }
-        img {
-            max-width: 100%;
-        }
-        .focus {
-            background-color: aliceblue;
-            opacity: 1;
-            padding: 10px;
-        }
-        .connect, .chat {
-            padding: 30px;
-            transition: visibility 1s, background-color 1s, opacity 1s;
-        }
-        .blur {
-            opacity: 0.7;
-            padding: 10px;
-        }
-        .room {
-            border-top: 1px dashed gray;
-            background-color: aliceblue;
-        }
-        .rooms {
-            margin-bottom: 10px;
-        }
-        .room:last-child {
-            border-bottom: 1px dashed gray;
-        }
-        .room.selected {
-            background-color: white;
-        }
-        /*.room.myRoom {
-            background-color: yellow;
-        }*/
-        .room ul {
-            margin-bottom: 0;
-        }
-        .room li {
-            list-style-type: square;
-            margin-left: .05em;
-            margin-bottom: 0;
-        }
-        @-webkit-keyframes pulse {
-            0% {background-color: #FFF;}
-            100% {background-color: #FF9A9F;}
-        }
-        keyframes pulse {
-            0% {background-color: #FFF;}
-            100% {background-color: #FF9A9F;}
-        }
-        .unread {
-            -webkit-animation: pulse 1s infinite alternate;
-            animation: pulse 1s ease-in-out infinite alternate;
-        }
-        .textInput {
-            white-space: pre;
-            background-color: white;
-            border: 1px solid #C3C3C3;
-            min-height: 100px;
-        }
-        .messages {
-            word-wrap: break-word;
-            overflow-y: auto;
-        }
-        .messages > div:nth-child(odd){
-            background-color: white;
-        }
-        .messages div.command {
-            background-color: #FDE8E8;
-        }
-        .payload {
-            white-space: pre;
-        }
-        textarea {
-            width: 100%;
-        }
-        input {
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+    <style></style>
 </head>
 <body>
     <script>
@@ -97,7 +15,7 @@
     // CLOSED  3   The connection is closed or couldn't be opened.
     </script>
     <div id="app" class="container"></div>
-    <script src="js/dist/bundle.js"></script>
+    <script src="static/js/dist/bundle.js"></script>
     <script>
         var domain = "{{.}}";
         chatblast.init(domain);
