@@ -15,12 +15,14 @@ var UserList = React.createClass({
                     return users[a].name > users[b].name;
                 }).map(function(uid){
                     var blocked = this.props.blocked.hasOwnProperty(uid);
+                    var user = users[uid];
                     return (
                         <User
-                            key={users[uid].id}
+                            key={user.id}
                             onClick={this.props.onClick}
                             extras={this.props.extras}
-                            user={users[uid]}
+                            user={user}
+                            self={this.props.self}
                             showConnected={this.props.showConnected}
                             handleConnectedClick={this.props.handleConnectedClick}
                             blocked={blocked}

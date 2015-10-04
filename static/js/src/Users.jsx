@@ -13,7 +13,13 @@ var Users = React.createClass({
         return (
             <div className={this.props.className} >
                 <h4>Users</h4>
-                <UserList showConnected={true} users={this.props.users} handleConnectedClick={this.handleConnectedClick} blocked={this.props.blocked} />
+                <UserList
+                    showConnected={true}
+                    users={this.props.users}
+                    self={this.props.self}
+                    blocked={this.props.blocked}
+                    handleConnectedClick={this.handleConnectedClick}
+                />
             </div>
         );
     }

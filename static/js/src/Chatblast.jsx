@@ -84,6 +84,7 @@ var Chatblast = React.createClass({
                     <Users
                         className={userClass}
                         readyState={store.readyState}
+                        self={self}
                         users={users}
                         currentRoom={currentRoom}
                         blocked={store.blocked}
