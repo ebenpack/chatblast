@@ -1,6 +1,6 @@
 all:
 	go get github.com/gorilla/websocket
-	npm --prefix js/ install
-	gulp --gulpfile js/gulpfile.js build
+	npm --prefix static/js/ install
+	npm build
 	go fmt
 	go build
