@@ -1,6 +1,6 @@
 all:
 	go get github.com/gorilla/websocket
-	npm --prefix static/js/ install
-	npm --prefix static/js/ build
+	npm install --prefix ./static/js/
+	npm run-script build --prefix ./static/js/
 	go fmt
 	go build
